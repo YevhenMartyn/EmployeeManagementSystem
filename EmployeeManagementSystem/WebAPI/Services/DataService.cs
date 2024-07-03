@@ -23,7 +23,7 @@ namespace WebAPI.Services
 
         //Employees ----------------
 
-        public static List<Employee> GetAllEmployees(int id) => Employees;
+        public static List<Employee> GetAllEmployees() => Employees;
         public static Employee GetEmployeeById(int id) => Employees.FirstOrDefault(employee => employee.Id == id);
 
         public static void AddEmployee(Employee employee) {
@@ -50,7 +50,7 @@ namespace WebAPI.Services
 
         //Departments ------------------
 
-        public static List<Department> GetAllDepartments(int id) => Departments;
+        public static List<Department> GetAllDepartments() => Departments;
         public static Department GetDepartmentById(int id) => Departments.FirstOrDefault(department => department.Id == id);
 
         public static void AddDepartment(Department department)
