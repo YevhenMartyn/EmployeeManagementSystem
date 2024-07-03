@@ -1,0 +1,198 @@
+# User-specific files
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# User-specific files (Mono)
+*.userprefs
+
+# Mono Auto Generated Files
+mono_crash.*
+
+# ASP.NET Scaffolding
+ScaffoldingReadMe.txt
+
+# Visual Studio Code
+.vscode/
+.history/
+
+# Rider
+.idea/
+*.sln.iml
+
+# ASP.NET Core
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+# .NET Core
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+# ASP.NET Files
+*.dbmdl
+*.dbproj.schemaview
+*.pfx
+*.publishsettings
+
+# SQL Server Files
+*.mdf
+*.ldf
+
+# VS Code directories
+.vscode/
+
+# Windows image file caches
+Thumbs.db
+ehthumbs.db
+
+# Folder config file
+Desktop.ini
+
+# Recycle Bin used on file shares
+$RECYCLE.BIN/
+
+# Windows shortcuts
+*.lnk
+
+# Windows crash dumps
+*.dmp
+
+# JetBrains Rider
+.idea/
+
+# Rider EditorConfig
+.editorconfig
+
+# Ncrunch
+*_NCrunch_*
+
+# Web
+*.publish.xml
+*.azurePubxml
+*.pubxml
+
+# NuGet
+*.nupkg
+*.snupkg
+.nuget/packages/
+.nuget/packages.config
+
+# Resharper
+_ReSharper*/
+*.DotSettings.user
+
+# MSTest test Results
+TestResults
+
+# Build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+bld/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+
+# Windows image file caches
+Thumbs.db
+ehthumbs.db
+
+# Folder config file
+Desktop.ini
+
+# Mac system files
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows Installer files
+*.cab
+*.msi
+*.msm
+*.msp
+
+# Windows shortcuts
+*.lnk
+
+# Windows binaries
+*.exe
+*.dll
+*.com
+*.bat
+*.cmd
+*.vbs
+*.js
+*.wsf
+*.ps1
+*.psm1
+*.psd1
+*.ps1xml
+*.psc1
+*.xaml
+*.xap
+*.svg
+*.scss
+*.coffee
+*.config
+*.settings
+*.xml
+*.json
+*.sqlite
+*.log
+*.bak
+*.ldf
+*.mdf
+*.backup
+*.changelog
+*.deployment
+*.deploy
+*.deploy.cmd
+*.nuspec
+*.nupkg
+*.swp
+*.swm
+*.mdown
+*.md
+*.markdown
+*.rst
+*.rdoc
+*.tex
+*.bib
+*.bbl
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.bmp
+*.tiff
+*.svg
+*.ico
+*.icns
+*.icns
+
+# Linux files
+*~
+
+# Coverage results
+coverage/
+*.coverage
+*.coveragexml
+
+# IDE files
+.idea/
+.vscode/
+.vscode-test/
+
+# System
+*.DS_Store
+.AppleDouble
+.LSOverride
