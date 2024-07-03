@@ -18,6 +18,51 @@ Accept: application/json
 
 ###
 
+### 
+//Add new Employee
+POST {{WebAPI_HostAddress}}/api/employee/
+Content-Type: application/json
+
+{
+    "name": "John Doe",
+    "position": "Johns' position",
+    "department": {
+        "id": 2,
+        "name": "department2"
+    },
+    "startDate": "2023-01-01T00:00:00Z"
+}
+
+###
+
+### 
+// Update Employee by ID '1'
+PUT {{WebAPI_HostAddress}}/api/employee/1
+Content-Type: application/json
+
+{
+    "id": 1,
+    "name": "Updated Employee",
+    "position": "UpdatedPossition",
+    "department": {
+        "id": 2,
+        "name": "department2"
+    },
+    "startDate": "2023-01-01T00:00:00Z"
+}
+
+###
+
+### Delete Employee by ID '1'
+DELETE {{WebAPI_HostAddress}}/api/employee/1
+Accept: application/json
+
+###
+
+
+
+
+
 //Departmants -------------
 
 // All Departmants
@@ -31,5 +76,34 @@ Accept: application/json
 
 ###
 //Departmant not found
-GET {{WebAPI_HostAddress}}/api/departmant/200
+GET {{WebAPI_HostAddress}}/api/department/200
 Accept: application/json
+
+### 
+//Add new Department
+POST {{WebAPI_HostAddress}}/api/department/
+Content-Type: application/json
+
+{
+    "name": "New Department"
+}
+
+###
+
+### 
+// Update Department by ID '1'
+PUT {{WebAPI_HostAddress}}/api/department/1
+Content-Type: application/json
+
+{
+    "id": 1,
+    "name": "Updated Department"
+}
+
+###
+
+### Delete Department by ID '1'
+DELETE {{WebAPI_HostAddress}}/api/department/1
+Accept: application/json
+
+###
