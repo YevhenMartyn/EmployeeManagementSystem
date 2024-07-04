@@ -52,14 +52,22 @@ namespace WebAPI.Services
 
         public static void UpdateEmployee(Employee employee) {
 
-            // Check if the department exists
-            var department = GetDepartmentById(employee.Department.Id);
-            if (department == null || department.Name != employee.Department.Name)
+            if (employee.Department != null)
             {
-                throw new Exception("Invalid department.");
+                // Check if the department exists
+                var department = GetDepartmentById(employee.Department.Id);
+                if (department == null || department.Name != employee.Department.Name)
+                {
+                    throw new Exception("Invalid department.");
+                }
+
+                employee.Department = department;
+            }
+            else 
+            {
+                employee.Department = _defaultDepartment;
             }
 
-            employee.Department = department;
             int index = Employees.FindIndex(e => e.Id == employee.Id);
             if (index == -1)
                 return;

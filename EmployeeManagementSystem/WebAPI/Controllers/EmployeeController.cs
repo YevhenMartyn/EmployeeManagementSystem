@@ -28,7 +28,7 @@ namespace WebAPI.Controllers
             {
                 employees = Services.DataService.GetAllEmployees().Where(n => n.Department.Name == departmentName);
             }
-            else 
+            else
             {
                 employees = Services.DataService.GetAllEmployees();
             }
@@ -171,6 +171,75 @@ namespace WebAPI.Controllers
 
             _logger.LogInformation($"Employee with ID {id} patched successfully");
             return Ok();
+        }
+
+        // Assign Employee to Department
+        [HttpPatch("{employeeId}/assignDepartment/{departmentId}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public IActionResult AssignEmployeeToDepartment(int employeeId, int departmentId)
+        {
+            try
+            {
+                _logger.LogInformation($"Assigning employee with ID {employeeId} to department with ID {departmentId}");
+
+                var employee = Services.DataService.GetEmployeeById(employeeId);
+                if (employee == null)
+                {
+                    _logger.LogError($"Employee with ID {employeeId} not found");
+                    return NotFound();
+                }
+
+                var department = Services.DataService.GetDepartmentById(departmentId);
+                if (department == null)
+                {
+                    _logger.LogError($"Department with ID {departmentId} not found");
+                    return NotFound();
+                }
+
+                employee.Department = department;
+                Services.DataService.UpdateEmployee(employee);
+
+                _logger.LogInformation($"Employee with ID {employeeId} assigned to department with ID {departmentId}");
+                return Ok(employee);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error assigning employee to department");
+                return BadRequest(ex.Message);
+            }
+        }
+
+        // Remove Employee from Department
+        [HttpPatch("{employeeId}/removeDepartment")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public IActionResult RemoveEmployeeFromDepartment(int employeeId)
+        {
+            try
+            {
+                _logger.LogInformation($"Removing department from employee with ID {employeeId}");
+
+                var employee = Services.DataService.GetEmployeeById(employeeId);
+                if (employee == null)
+                {
+                    _logger.LogError($"Employee with ID {employeeId} not found");
+                    return NotFound();
+                }
+
+                employee.Department = null;
+                Services.DataService.UpdateEmployee(employee);
+
+                _logger.LogInformation($"Department removed from employee with ID {employeeId}");
+                return Ok(employee);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error removing department from employee");
+                return BadRequest(ex.Message);
+            }
         }
     }
 }
