@@ -123,37 +123,5 @@ namespace WebAPI.Controllers
 
             return Ok();
         }
-
-        // PATCH action
-        [HttpPatch("{id}")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public IActionResult UpdatePartialDepartment(int id, JsonPatchDocument<Department> patch)
-        {
-            if (patch == null || id == 0)
-            {
-                _logger.LogError("Invalid patch document or ID");
-                return BadRequest();
-            }
-
-            _logger.LogInformation($"Patching department with ID {id}");
-            var department = Services.DataService.GetAllDepartments().FirstOrDefault(d => d.Id == id);
-            if (department is null)
-            {
-                _logger.LogError($"Department with ID {id} not found");
-                return BadRequest();
-            }
-
-            patch.ApplyTo(department, ModelState);
-
-            if (!ModelState.IsValid)
-            {
-                _logger.LogError("Invalid model state after applying patch");
-                return BadRequest(ModelState);
-            }
-
-            _logger.LogInformation($"Department with ID {id} patched successfully");
-            return Ok();
-        }
     }
 }
