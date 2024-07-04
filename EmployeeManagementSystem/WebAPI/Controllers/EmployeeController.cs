@@ -19,10 +19,19 @@ namespace WebAPI.Controllers
         // GET all action
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public IActionResult GetAllEmployees()
+        public IActionResult GetAllEmployees([FromQuery(Name = "filterByDepartmentName")] string? departmentName)
         {
             _logger.LogInformation("Fetching all employees");
-            var employees = Services.DataService.GetAllEmployees();
+
+            IEnumerable<Employee> employees;
+            if (departmentName is not null)
+            {
+                employees = Services.DataService.GetAllEmployees().Where(n => n.Department.Name == departmentName);
+            }
+            else 
+            {
+                employees = Services.DataService.GetAllEmployees();
+            }
             return Ok(employees);
         }
 
@@ -66,7 +75,7 @@ namespace WebAPI.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error adding employee");
-                return BadRequest(new { message = ex.Message });
+                return BadRequest();
             }
         }
 
@@ -89,18 +98,26 @@ namespace WebAPI.Controllers
                 return BadRequest();
             }
 
-            _logger.LogInformation($"Updating employee with ID {id}");
-            Employee existingEmployee = Services.DataService.GetEmployeeById(id);
-            if (existingEmployee is null)
+            try
             {
-                _logger.LogError($"Employee with ID {id} not found");
-                return NotFound();
+                _logger.LogInformation($"Updating employee with ID {id}");
+                Employee existingEmployee = Services.DataService.GetEmployeeById(id);
+                if (existingEmployee is null)
+                {
+                    _logger.LogError($"Employee with ID {id} not found");
+                    return NotFound();
+                }
+
+                Services.DataService.UpdateEmployee(employee);
+                _logger.LogInformation($"Employee with ID {id} updated successfully");
+
+                return Ok();
             }
-
-            Services.DataService.UpdateEmployee(employee);
-            _logger.LogInformation($"Employee with ID {id} updated successfully");
-
-            return Ok();
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error updating employee");
+                return BadRequest();
+            }
         }
 
         // DELETE action
