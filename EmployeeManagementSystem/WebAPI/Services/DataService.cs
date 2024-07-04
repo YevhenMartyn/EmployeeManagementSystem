@@ -5,10 +5,11 @@ namespace WebAPI.Services
     public static class DataService
     {
         static List<Employee> Employees { get; set; }
-        static int nextEmployeeId = 4;
+        private static int _nextEmployeeId = 4;
 
         static List<Department> Departments { get; set; }
-        static int nextDepartmentId = 3;
+        private static int _nextDepartmentId = 3;
+        private static Department _defaultDepartment = new Department { Id = 0, Name = "No department" };
 
         static DataService()
         {
@@ -24,11 +25,20 @@ namespace WebAPI.Services
         //Employees ----------------
 
         public static List<Employee> GetAllEmployees() => Employees;
-        public static Employee GetEmployeeById(int id) => Employees.FirstOrDefault(employee => employee.Id == id);
+        public static Employee? GetEmployeeById(int id) => Employees.FirstOrDefault(employee => employee.Id == id);
 
         public static void AddEmployee(Employee employee) {
-            employee.Id = nextEmployeeId;
-            nextEmployeeId++;
+
+            // Check if the department exists
+            var department = GetDepartmentById(employee.Department.Id);
+            if (department == null || department.Name != employee.Department.Name)
+            {
+                throw new Exception("Invalid department.");
+            }
+
+            employee.Department = department;
+            employee.Id = _nextEmployeeId;
+            _nextEmployeeId++;
             Employees.Add(employee);
         }
 
@@ -41,6 +51,15 @@ namespace WebAPI.Services
         }
 
         public static void UpdateEmployee(Employee employee) {
+
+            // Check if the department exists
+            var department = GetDepartmentById(employee.Department.Id);
+            if (department == null || department.Name != employee.Department.Name)
+            {
+                throw new Exception("Invalid department.");
+            }
+
+            employee.Department = department;
             int index = Employees.FindIndex(e => e.Id == employee.Id);
             if (index == -1)
                 return;
@@ -51,12 +70,12 @@ namespace WebAPI.Services
         //Departments ------------------
 
         public static List<Department> GetAllDepartments() => Departments;
-        public static Department GetDepartmentById(int id) => Departments.FirstOrDefault(department => department.Id == id);
+        public static Department? GetDepartmentById(int id) => Departments.FirstOrDefault(department => department.Id == id);
 
         public static void AddDepartment(Department department)
         {
-            department.Id = nextDepartmentId;
-            nextDepartmentId++;
+            department.Id = _nextDepartmentId;
+            _nextDepartmentId++;
             Departments.Add(department);
         }
 
@@ -65,6 +84,12 @@ namespace WebAPI.Services
             var department = GetDepartmentById(id);
             if (department is null)
                 return;
+
+            // Update employees in this department to the default department
+            foreach (Employee employee in Employees.Where(e => e.Department?.Id == id))
+            {
+                employee.Department = _defaultDepartment;
+            }
 
             Departments.Remove(department);
         }

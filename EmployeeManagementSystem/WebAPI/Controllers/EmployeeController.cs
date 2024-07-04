@@ -34,6 +34,7 @@ namespace WebAPI.Controllers
         {
             _logger.LogInformation($"Fetching employee with ID {id}");
             var employee = Services.DataService.GetEmployeeById(id);
+
             if (employee == null)
             {
                 _logger.LogError($"Employee with ID {id} not found");
@@ -55,10 +56,18 @@ namespace WebAPI.Controllers
                 return BadRequest(ModelState);
             }
 
-            _logger.LogInformation("Adding a new employee");
-            Services.DataService.AddEmployee(employee);
-            _logger.LogInformation($"Employee with ID {employee.Id} added successfully");
-            return CreatedAtAction(nameof(GetEmployeeById), new { id = employee.Id }, employee);
+            try
+            {
+                _logger.LogInformation("Adding a new employee");
+                Services.DataService.AddEmployee(employee);
+                _logger.LogInformation($"Employee with ID {employee.Id} added successfully");
+                return CreatedAtAction(nameof(GetEmployeeById), new { id = employee.Id }, employee);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error adding employee");
+                return BadRequest(new { message = ex.Message });
+            }
         }
 
         // PUT action
@@ -98,7 +107,7 @@ namespace WebAPI.Controllers
         [HttpDelete("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public IActionResult Delete(int id)
+        public IActionResult DeleteEmployee(int id)
         {
             _logger.LogInformation($"Deleting employee with ID {id}");
             var employee = Services.DataService.GetEmployeeById(id);
@@ -119,7 +128,7 @@ namespace WebAPI.Controllers
         [HttpPatch("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public IActionResult UpdatePartialDepartment(int id, JsonPatchDocument<Employee> patch)
+        public IActionResult UpdatePartialEmployee(int id, JsonPatchDocument<Employee> patch)
         {
             if (patch == null || id == 0)
             {

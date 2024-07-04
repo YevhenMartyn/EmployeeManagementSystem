@@ -34,6 +34,7 @@ namespace WebAPI.Controllers
         {
             _logger.LogInformation($"Fetching department with ID {id}");
             var department = Services.DataService.GetDepartmentById(id);
+
             if (department == null)
             {
                 _logger.LogError($"Department with ID {id} not found");
@@ -106,7 +107,7 @@ namespace WebAPI.Controllers
         [HttpDelete("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public IActionResult Delete(int id)
+        public IActionResult DeleteDepartment(int id)
         {
             _logger.LogInformation($"Deleting department with ID {id}");
             var department = Services.DataService.GetDepartmentById(id);
