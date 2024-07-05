@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.JsonPatch;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using WebAPI.Models;
 
 namespace WebAPI.Controllers
@@ -35,7 +33,7 @@ namespace WebAPI.Controllers
             _logger.LogInformation($"Fetching department with ID {id}");
             var department = Services.DataService.GetDepartmentById(id);
 
-            if (department == null)
+            if (department is null)
             {
                 _logger.LogError($"Department with ID {id} not found");
                 return NotFound();

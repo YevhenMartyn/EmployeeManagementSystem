@@ -1,10 +1,7 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.JsonPatch;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using WebAPI.ModelBinders;
 using WebAPI.Models;
 using WebAPI.Services;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace WebAPI.Controllers
 {
@@ -56,7 +53,7 @@ namespace WebAPI.Controllers
             _logger.LogInformation($"Fetching employee with ID {id}");
             var employee = Services.DataService.GetEmployeeById(id);
 
-            if (employee == null)
+            if (employee is null)
             {
                 _logger.LogError($"Employee with ID {id} not found");
                 return NotFound();
