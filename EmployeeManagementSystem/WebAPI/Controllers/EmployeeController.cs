@@ -26,7 +26,7 @@ namespace WebAPI.Controllers
             _logger.LogInformation("Fetching all employees");
             IEnumerable<Employee> employees = Services.DataService.GetAllEmployees();
 
-            if (departmentName is not null)
+            if (departmentName != null)
             {
                 employees = Services.DataService.GetAllEmployees().Where(n => n.Department.Name == departmentName);
             }
@@ -53,7 +53,7 @@ namespace WebAPI.Controllers
             _logger.LogInformation($"Fetching employee with ID {id}");
             var employee = Services.DataService.GetEmployeeById(id);
 
-            if (employee is null)
+            if (employee == null)
             {
                 _logger.LogError($"Employee with ID {id} not found");
                 return NotFound();
@@ -151,7 +151,7 @@ namespace WebAPI.Controllers
                 _logger.LogInformation($"Updating employee with ID {id}");
                 Employee existingEmployee = Services.DataService.GetEmployeeById(id);
 
-                if (existingEmployee is null)
+                if (existingEmployee == null)
                 {
                     _logger.LogError($"Employee with ID {id} not found");
                     return NotFound();
@@ -178,7 +178,7 @@ namespace WebAPI.Controllers
             _logger.LogInformation($"Deleting employee with ID {id}");
             var employee = Services.DataService.GetEmployeeById(id);
 
-            if (employee is null)
+            if (employee == null)
             {
                 _logger.LogError($"Employee with ID {id} not found");
                 return NotFound();

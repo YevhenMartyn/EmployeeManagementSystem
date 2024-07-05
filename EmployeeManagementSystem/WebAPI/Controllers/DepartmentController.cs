@@ -33,7 +33,7 @@ namespace WebAPI.Controllers
             _logger.LogInformation($"Fetching department with ID {id}");
             var department = Services.DataService.GetDepartmentById(id);
 
-            if (department is null)
+            if (department == null)
             {
                 _logger.LogError($"Department with ID {id} not found");
                 return NotFound();
@@ -89,7 +89,7 @@ namespace WebAPI.Controllers
 
             _logger.LogInformation($"Updating department with ID {id}");
             Department existingDepartment = Services.DataService.GetDepartmentById(id);
-            if (existingDepartment is null)
+            if (existingDepartment == null)
             {
                 _logger.LogError($"Department with ID {id} not found");
                 return NotFound();
@@ -110,7 +110,7 @@ namespace WebAPI.Controllers
             _logger.LogInformation($"Deleting department with ID {id}");
             var department = Services.DataService.GetDepartmentById(id);
 
-            if (department is null)
+            if (department == null)
             {
                 _logger.LogError($"Department with ID {id} not found");
                 return NotFound();
