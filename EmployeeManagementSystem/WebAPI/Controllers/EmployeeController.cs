@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using WebAPI.ModelBinders;
 using WebAPI.Models;
 using WebAPI.Services;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace WebAPI.Controllers
 {
@@ -21,19 +22,28 @@ namespace WebAPI.Controllers
         // GET all action
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public IActionResult GetAllEmployees([FromQuery(Name = "filterByDepartmentName")] string? departmentName)
+        public IActionResult GetAllEmployees([FromQuery(Name = "filterByDepartmentName")] string? departmentName,
+                                             [FromQuery(Name = "startedAfterDate")] DateTime? fromDate,
+                                             [FromQuery(Name = "startedBeforeDate")] DateTime? toDate)
         {
             _logger.LogInformation("Fetching all employees");
+            IEnumerable<Employee> employees = Services.DataService.GetAllEmployees();
 
-            IEnumerable<Employee> employees;
             if (departmentName is not null)
             {
                 employees = Services.DataService.GetAllEmployees().Where(n => n.Department.Name == departmentName);
             }
-            else
+
+            if (fromDate.HasValue)
             {
-                employees = Services.DataService.GetAllEmployees();
+                employees = employees.Where(e => e.StartDate >= fromDate.Value);
             }
+
+            if (toDate.HasValue)
+            {
+                employees = employees.Where(e => e.StartDate <= toDate.Value);
+            }
+
             return Ok(employees);
         }
 
@@ -55,7 +65,7 @@ namespace WebAPI.Controllers
             return Ok(employee);
         }
 
-        //GET search
+        //GET search 
         [HttpGet("search")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -83,169 +93,173 @@ namespace WebAPI.Controllers
                 employees = employees.Where(e => e.StartDate.Date == searchParams.StartDate.Date).ToList();
             }
 
-            if(employees.Count == 0)
+            if (employees.Count == 0)
             {
+                _logger.LogWarning("No employee found");
                 return NotFound();
             }
+
             return Ok(employees);
         }
 
 
         // POST action
         [HttpPost]
-            [ProducesResponseType(StatusCodes.Status201Created)]
-            [ProducesResponseType(StatusCodes.Status400BadRequest)]
-            public IActionResult AddEmployee(Employee employee)
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public IActionResult AddEmployee(Employee employee)
+        {
+            if (!ModelState.IsValid)
             {
-                if (!ModelState.IsValid)
-                {
-                    _logger.LogError("Invalid model state for the employee");
-                    return BadRequest(ModelState);
-                }
-
-                try
-                {
-                    _logger.LogInformation("Adding a new employee");
-                    Services.DataService.AddEmployee(employee);
-                    _logger.LogInformation($"Employee with ID {employee.Id} added successfully");
-                    return CreatedAtAction(nameof(GetEmployeeById), new { id = employee.Id }, employee);
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, "Error adding employee");
-                    return BadRequest();
-                }
+                _logger.LogError("Invalid model state for the employee");
+                return BadRequest(ModelState);
             }
 
-            // PUT action
-            [HttpPut("{id}")]
-            [ProducesResponseType(StatusCodes.Status200OK)]
-            [ProducesResponseType(StatusCodes.Status404NotFound)]
-            [ProducesResponseType(StatusCodes.Status400BadRequest)]
-            public IActionResult UpdateEmployee(int id, Employee employee)
+            try
             {
-                if (!ModelState.IsValid)
-                {
-                    _logger.LogError("Invalid model state for the employee");
-                    return BadRequest(ModelState);
-                }
+                _logger.LogInformation("Adding a new employee");
+                Services.DataService.AddEmployee(employee);
 
-                if (id != employee.Id)
-                {
-                    _logger.LogError("Given ID does not match the employee ID");
-                    return BadRequest();
-                }
+                _logger.LogInformation($"Employee with ID {employee.Id} added successfully");
+                return CreatedAtAction(nameof(GetEmployeeById), new { id = employee.Id }, employee);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error adding employee");
+                return BadRequest();
+            }
+        }
 
-                try
-                {
-                    _logger.LogInformation($"Updating employee with ID {id}");
-                    Employee existingEmployee = Services.DataService.GetEmployeeById(id);
-                    if (existingEmployee is null)
-                    {
-                        _logger.LogError($"Employee with ID {id} not found");
-                        return NotFound();
-                    }
-
-                    Services.DataService.UpdateEmployee(employee);
-                    _logger.LogInformation($"Employee with ID {id} updated successfully");
-
-                    return Ok();
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, "Error updating employee");
-                    return BadRequest();
-                }
+        // PUT action
+        [HttpPut("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public IActionResult UpdateEmployee(int id, Employee employee)
+        {
+            if (!ModelState.IsValid)
+            {
+                _logger.LogError("Invalid model state for the employee");
+                return BadRequest(ModelState);
             }
 
-            // DELETE action
-            [HttpDelete("{id}")]
-            [ProducesResponseType(StatusCodes.Status200OK)]
-            [ProducesResponseType(StatusCodes.Status404NotFound)]
-            public IActionResult DeleteEmployee(int id)
+            if (id != employee.Id)
             {
-                _logger.LogInformation($"Deleting employee with ID {id}");
-                var employee = Services.DataService.GetEmployeeById(id);
+                _logger.LogError("Given ID does not match the employee ID");
+                return BadRequest();
+            }
 
-                if (employee is null)
+            try
+            {
+                _logger.LogInformation($"Updating employee with ID {id}");
+                Employee existingEmployee = Services.DataService.GetEmployeeById(id);
+
+                if (existingEmployee is null)
                 {
                     _logger.LogError($"Employee with ID {id} not found");
                     return NotFound();
                 }
 
-                Services.DataService.DeleteEmployeeById(id);
-                _logger.LogInformation($"Employee with ID {id} deleted successfully");
+                Services.DataService.UpdateEmployee(employee);
+                _logger.LogInformation($"Employee with ID {id} updated successfully");
 
                 return Ok();
             }
-
-            // Assign Employee to Department
-            [HttpPatch("{employeeId}/assignDepartment/{departmentId}")]
-            [ProducesResponseType(StatusCodes.Status200OK)]
-            [ProducesResponseType(StatusCodes.Status404NotFound)]
-            [ProducesResponseType(StatusCodes.Status400BadRequest)]
-            public IActionResult AssignEmployeeToDepartment(int employeeId, int departmentId)
+            catch (Exception ex)
             {
-                try
-                {
-                    _logger.LogInformation($"Assigning employee with ID {employeeId} to department with ID {departmentId}");
+                _logger.LogError(ex, "Error updating employee");
+                return BadRequest();
+            }
+        }
 
-                    var employee = Services.DataService.GetEmployeeById(employeeId);
-                    if (employee == null)
-                    {
-                        _logger.LogError($"Employee with ID {employeeId} not found");
-                        return NotFound();
-                    }
+        // DELETE action
+        [HttpDelete("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public IActionResult DeleteEmployee(int id)
+        {
+            _logger.LogInformation($"Deleting employee with ID {id}");
+            var employee = Services.DataService.GetEmployeeById(id);
 
-                    var department = Services.DataService.GetDepartmentById(departmentId);
-                    if (department == null)
-                    {
-                        _logger.LogError($"Department with ID {departmentId} not found");
-                        return NotFound();
-                    }
-
-                    employee.Department = department;
-                    Services.DataService.UpdateEmployee(employee);
-
-                    _logger.LogInformation($"Employee with ID {employeeId} assigned to department with ID {departmentId}");
-                    return Ok(employee);
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, "Error assigning employee to department");
-                    return BadRequest(ex.Message);
-                }
+            if (employee is null)
+            {
+                _logger.LogError($"Employee with ID {id} not found");
+                return NotFound();
             }
 
-            // Remove Employee from Department
-            [HttpPatch("{employeeId}/removeDepartment")]
-            [ProducesResponseType(StatusCodes.Status200OK)]
-            [ProducesResponseType(StatusCodes.Status404NotFound)]
-            [ProducesResponseType(StatusCodes.Status400BadRequest)]
-            public IActionResult RemoveEmployeeFromDepartment(int employeeId)
+            Services.DataService.DeleteEmployeeById(id);
+            _logger.LogInformation($"Employee with ID {id} deleted successfully");
+
+            return Ok();
+        }
+
+        // Assign Employee to Department
+        [HttpPatch("{employeeId}/assignDepartment/{departmentId}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public IActionResult AssignEmployeeToDepartment(int employeeId, int departmentId)
+        {
+            try
             {
-                try
+                _logger.LogInformation($"Assigning employee with ID {employeeId} to department with ID {departmentId}");
+
+                var employee = Services.DataService.GetEmployeeById(employeeId);
+                if (employee == null)
                 {
-                    _logger.LogInformation($"Removing department from employee with ID {employeeId}");
-
-                    var employee = Services.DataService.GetEmployeeById(employeeId);
-                    if (employee == null)
-                    {
-                        _logger.LogError($"Employee with ID {employeeId} not found");
-                        return NotFound();
-                    }
-
-                    employee.Department = null;
-                    Services.DataService.UpdateEmployee(employee);
-
-                    _logger.LogInformation($"Department removed from employee with ID {employeeId}");
-                    return Ok(employee);
+                    _logger.LogError($"Employee with ID {employeeId} not found");
+                    return NotFound();
                 }
-                catch (Exception ex)
+
+                var department = Services.DataService.GetDepartmentById(departmentId);
+                if (department == null)
                 {
-                    _logger.LogError(ex, "Error removing department from employee");
-                    return BadRequest(ex.Message);
+                    _logger.LogError($"Department with ID {departmentId} not found");
+                    return NotFound();
                 }
+
+                employee.Department = department;
+                Services.DataService.UpdateEmployee(employee);
+
+                _logger.LogInformation($"Employee with ID {employeeId} assigned to department with ID {departmentId}");
+                return Ok(employee);
             }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error assigning employee to department");
+                return BadRequest(ex.Message);
+            }
+        }
+
+        // Remove Employee from Department
+        [HttpPatch("{employeeId}/removeDepartment")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public IActionResult RemoveEmployeeFromDepartment(int employeeId)
+        {
+            try
+            {
+                _logger.LogInformation($"Removing department from employee with ID {employeeId}");
+
+                var employee = Services.DataService.GetEmployeeById(employeeId);
+                if (employee == null)
+                {
+                    _logger.LogError($"Employee with ID {employeeId} not found");
+                    return NotFound();
+                }
+
+                employee.Department = null;
+                Services.DataService.UpdateEmployee(employee);
+
+                _logger.LogInformation($"Department removed from employee with ID {employeeId}");
+                return Ok(employee);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error removing department from employee");
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }
