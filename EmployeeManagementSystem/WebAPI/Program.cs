@@ -1,6 +1,13 @@
 using WebAPI.Middlewares;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
+
+
+Log.Logger = new LoggerConfiguration().MinimumLevel.Information()
+    .WriteTo.File("log/logs.txt", rollingInterval: RollingInterval.Day).CreateLogger();
+
+builder.Host.UseSerilog();
 
 // Add services to the container.
 builder.Services.AddControllers();
