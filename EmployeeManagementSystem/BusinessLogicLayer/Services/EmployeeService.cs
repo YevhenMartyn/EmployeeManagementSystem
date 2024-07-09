@@ -1,5 +1,7 @@
-﻿using BusinessLogicLayer.Interface;
+﻿using AutoMapper;
+using BusinessLogicLayer.Interface;
 using BusinessLogicLayer.Models;
+using DataAccessLayer.Interface;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,29 +12,39 @@ namespace BusinessLogicLayer.Services
 {
     public class EmployeeService : IEmployeeService
     {
+        private readonly IEmployeeRepository _repository;
+        private readonly IMapper _mapper;
+        public EmployeeService(IEmployeeRepository repository, IMapper mapper)
+        {
+            _repository = repository;
+            _mapper = mapper;
+        }
         public void Create(Employee employee)
         {
-            throw new NotImplementedException();
+            _repository.Create(_mapper.Map<DataAccessLayer.Entities.Employee>(employee));
         }
 
         public void Delete(int id)
         {
-            throw new NotImplementedException();
+            _repository.Delete(id);
         }
 
         public List<Employee> GetAll()
         {
-            throw new NotImplementedException();
+            List<Employee> employees = _mapper.Map<List<Employee>>(_repository.GetAll());
+            return employees;
+
         }
 
         public Employee GetById(int id)
         {
-            throw new NotImplementedException();
+            Employee employee = _mapper.Map<Employee>(_repository.GetById(id));
+            return employee;
         }
 
         public void Update(Employee employee)
         {
-            throw new NotImplementedException();
+            _repository.Update(_mapper.Map<DataAccessLayer.Entities.Employee>(employee));
         }
     }
 }

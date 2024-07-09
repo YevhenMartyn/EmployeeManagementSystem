@@ -1,5 +1,7 @@
-﻿using BusinessLogicLayer.Interface;
+﻿using AutoMapper;
+using BusinessLogicLayer.Interface;
 using BusinessLogicLayer.Models;
+using DataAccessLayer.Interface;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,29 +12,39 @@ namespace BusinessLogicLayer.Services
 {
     public class DepartmentService : IDepartmentService
     {
+        private readonly IDepartmentRepository _repository;
+        private readonly IMapper _mapper;
+        public DepartmentService(IDepartmentRepository repository, IMapper mapper)
+        {
+            _repository = repository;
+            _mapper = mapper;
+        }
         public void Create(Department department)
         {
-            throw new NotImplementedException();
+            _repository.Create(_mapper.Map<DataAccessLayer.Entities.Department>(department));
         }
 
         public void Delete(int id)
         {
-            throw new NotImplementedException();
+            _repository.Delete(id);
         }
 
         public List<Department> GetAll()
         {
-            throw new NotImplementedException();
+            List<Department> departments = _mapper.Map<List<Department>>(_repository.GetAll());
+            return departments;
+
         }
 
         public Department GetById(int id)
         {
-            throw new NotImplementedException();
+            Department department = _mapper.Map<Department>(_repository.GetById(id));    
+            return department;
         }
 
         public void Update(Department department)
         {
-            throw new NotImplementedException();
+            _repository.Update(_mapper.Map<DataAccessLayer.Entities.Department>(department));
         }
     }
 }
