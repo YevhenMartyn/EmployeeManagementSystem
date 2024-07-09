@@ -1,6 +1,7 @@
-﻿using BusinessLogicLayer.Services;
+﻿using PresentationLayer.Services;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
-using WebAPI.Models;
+using PresentationLayer.Services;
+using PresentationLayer.Models;
 
 namespace PresentationLayer.ModelBinders
 {
@@ -30,7 +31,7 @@ namespace PresentationLayer.ModelBinders
             var departmentIdValueProviderResult = bindingContext.ValueProvider.GetValue("departmentId");
             if (departmentIdValueProviderResult != ValueProviderResult.None && int.TryParse(departmentIdValueProviderResult.FirstValue, out var departmentId))
             {
-                result.Department = DataService.GetDepartmentById(departmentId);
+                result.DepartmentId = departmentId;
             }
 
             var startDateValueProviderResult = bindingContext.ValueProvider.GetValue("startDate");

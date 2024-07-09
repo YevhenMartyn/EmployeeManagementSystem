@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using BusinessLogicLayer.Interface;
 using PresentationLayer.Models;
-using BusinessLogicLayer.Services;
 
 namespace PresentationLayer.Controllers
 {
@@ -9,10 +9,13 @@ namespace PresentationLayer.Controllers
     public class DepartmentController : ControllerBase
     {
         private readonly ILogger<DepartmentController> _logger;
-
-        public DepartmentController(ILogger<DepartmentController> logger)
+        private readonly IDepartmentService _departmentService;
+        public DepartmentController(
+            ILogger<DepartmentController> logger,
+            IDepartmentService departmentService)
         {
             _logger = logger;
+            _departmentService = departmentService;
         }
 
         // GET all action
@@ -21,7 +24,7 @@ namespace PresentationLayer.Controllers
         public IActionResult GetAllDepartments()
         {
             _logger.LogInformation("Fetching all departments");
-            var departments = DataService.GetAllDepartments();
+            var departments = _departmentService.GetAll();
             return Ok(departments);
         }
 
@@ -32,7 +35,7 @@ namespace PresentationLayer.Controllers
         public IActionResult GetDepartmentById(int id)
         {
             _logger.LogInformation($"Fetching department with ID {id}");
-            var department = DataService.GetDepartmentById(id);
+            var department = _departmentService.GetById(id);
 
             if (department == null)
             {
@@ -47,7 +50,7 @@ namespace PresentationLayer.Controllers
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public IActionResult AddDepartment(Department department)
+        public IActionResult AddDepartment(DepartmentDTO department)
         {
             if (!ModelState.IsValid)
             {
@@ -56,7 +59,7 @@ namespace PresentationLayer.Controllers
             }
 
             // Check for uniqueness
-            if (DataService.GetAllDepartments().FirstOrDefault(d => d.Name.ToLower() == department.Name.ToLower()) != null)
+            if (_departmentService.GetAll().FirstOrDefault(d => d.Name.ToLower() == department.Name.ToLower()) != null)
             {
                 _logger.LogError("Department with the same name already exists");
                 ModelState.AddModelError("AlreadyExistsError", "Such department already exists");
@@ -64,7 +67,7 @@ namespace PresentationLayer.Controllers
             }
 
             _logger.LogInformation("Adding a new department");
-            DataService.AddDepartment(department);
+            _departmentService.Create(department);
             _logger.LogInformation($"Department with ID {department.Id} added successfully");
             return CreatedAtAction(nameof(GetDepartmentById), new { id = department.Id }, department);
         }
@@ -74,7 +77,7 @@ namespace PresentationLayer.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public IActionResult UpdateDepartment(int id, Department department)
+        public IActionResult UpdateDepartment(int id, DepartmentDTO department)
         {
             if (!ModelState.IsValid)
             {
@@ -89,14 +92,14 @@ namespace PresentationLayer.Controllers
             }
 
             _logger.LogInformation($"Updating department with ID {id}");
-            Department existingDepartment = DataService.GetDepartmentById(id);
+            DepartmentDTO existingDepartment = _departmentService.GetById(id);
             if (existingDepartment == null)
             {
                 _logger.LogError($"Department with ID {id} not found");
                 return NotFound();
             }
 
-            DataService.UpdateDepartment(department);
+            _departmentService.Update(department);
             _logger.LogInformation($"Department with ID {id} updated successfully");
 
             return Ok();
@@ -109,7 +112,7 @@ namespace PresentationLayer.Controllers
         public IActionResult DeleteDepartment(int id)
         {
             _logger.LogInformation($"Deleting department with ID {id}");
-            var department = DataService.GetDepartmentById(id);
+            var department = _departmentService.GetById(id);
 
             if (department == null)
             {
@@ -117,7 +120,7 @@ namespace PresentationLayer.Controllers
                 return NotFound();
             }
 
-            DataService.DeleteDepartmentById(id);
+            _departmentService.Delete(id);
             _logger.LogInformation($"Department with ID {id} deleted successfully");
 
             return Ok();

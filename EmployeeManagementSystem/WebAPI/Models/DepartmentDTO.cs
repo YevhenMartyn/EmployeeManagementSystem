@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace PresentationLayer.Models.DTO
+namespace PresentationLayer.Models
 {
     public class DepartmentDTO
     {

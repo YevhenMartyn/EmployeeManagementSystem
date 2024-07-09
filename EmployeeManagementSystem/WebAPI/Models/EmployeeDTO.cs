@@ -1,7 +1,6 @@
-﻿using PresentationLayer.Models;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
-namespace PresentationLayer.Models.DTO
+namespace PresentationLayer.Models
 {
     public class EmployeeDTO
     {
@@ -12,7 +11,7 @@ namespace PresentationLayer.Models.DTO
         [Required]
         [MaxLength(30)]
         public string Position { get; set; }
-        public Department Department { get; set; }
+        public int DepartmentId { get; set; } = 0;
         [Required]
         public DateTime StartDate { get; set; }
     }

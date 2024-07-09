@@ -1,4 +1,5 @@
-﻿using BusinessLogicLayer.Services;
+﻿
+using BusinessLogicLayer.Interface;
 using Microsoft.AspNetCore.Mvc;
 using PresentationLayer.ModelBinders;
 using PresentationLayer.Models;
@@ -10,10 +11,12 @@ namespace PresentationLayer.Controllers
     public class EmployeeController : ControllerBase
     {
         private readonly ILogger<EmployeeController> _logger;
+        private readonly IEmployeeService _employeeService;
 
-        public EmployeeController(ILogger<EmployeeController> logger)
+        public EmployeeController(ILogger<EmployeeController> logger, IEmployeeService employeeService)
         {
             _logger = logger;
+            _employeeService = employeeService;
         }
 
         // GET all action
