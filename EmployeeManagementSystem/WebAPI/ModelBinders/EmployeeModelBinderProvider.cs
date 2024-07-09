@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Binders;
-using WebAPI.Models;
+using PresentationLayer.Models;
 
-namespace WebAPI.ModelBinders
+namespace PresentationLayer.ModelBinders
 {
     public class EmployeeModelBinderProvider : IModelBinderProvider
     {

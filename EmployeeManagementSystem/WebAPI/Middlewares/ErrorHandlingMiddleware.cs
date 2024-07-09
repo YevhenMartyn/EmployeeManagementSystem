@@ -1,7 +1,7 @@
 ﻿using System.Net;
 using System.Text.Json;
 
-namespace WebAPI.Middlewares
+namespace PresentationLayer.Middlewares
 {
     public class ErrorHandlingMiddleware
     {

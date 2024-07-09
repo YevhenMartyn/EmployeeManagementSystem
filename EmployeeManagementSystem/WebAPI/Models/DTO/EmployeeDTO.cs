@@ -1,8 +1,9 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using PresentationLayer.Models;
+using System.ComponentModel.DataAnnotations;
 
-namespace PresentationLayer.Models
+namespace PresentationLayer.Models.DTO
 {
-    public class Employee
+    public class EmployeeDTO
     {
         public int Id { get; set; }
         [Required]

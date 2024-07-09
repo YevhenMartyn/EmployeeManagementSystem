@@ -1,9 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using WebAPI.ModelBinders;
-using WebAPI.Models;
-using WebAPI.Services;
+﻿using BusinessLogicLayer.Services;
+using Microsoft.AspNetCore.Mvc;
+using PresentationLayer.ModelBinders;
+using PresentationLayer.Models;
 
-namespace WebAPI.Controllers
+namespace PresentationLayer.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
@@ -24,11 +24,11 @@ namespace WebAPI.Controllers
                                              [FromQuery(Name = "startedBeforeDate")] DateTime? toDate)
         {
             _logger.LogInformation("Fetching all employees");
-            IEnumerable<Employee> employees = Services.DataService.GetAllEmployees();
+            IEnumerable<Employee> employees = DataService.GetAllEmployees();
 
             if (departmentName != null)
             {
-                employees = Services.DataService.GetAllEmployees().Where(n => n.Department.Name == departmentName);
+                employees = DataService.GetAllEmployees().Where(n => n.Department.Name == departmentName);
             }
 
             if (fromDate.HasValue)
@@ -51,7 +51,7 @@ namespace WebAPI.Controllers
         public IActionResult GetEmployeeById(int id)
         {
             _logger.LogInformation($"Fetching employee with ID {id}");
-            var employee = Services.DataService.GetEmployeeById(id);
+            var employee = DataService.GetEmployeeById(id);
 
             if (employee == null)
             {
@@ -85,7 +85,7 @@ namespace WebAPI.Controllers
                 employees = employees.Where(e => e.Department.Id == searchParams.Department.Id).ToList();
             }
 
-            if (searchParams.StartDate != default(DateTime))
+            if (searchParams.StartDate != default)
             {
                 employees = employees.Where(e => e.StartDate.Date == searchParams.StartDate.Date).ToList();
             }
@@ -115,7 +115,7 @@ namespace WebAPI.Controllers
             try
             {
                 _logger.LogInformation("Adding a new employee");
-                Services.DataService.AddEmployee(employee);
+                DataService.AddEmployee(employee);
 
                 _logger.LogInformation($"Employee with ID {employee.Id} added successfully");
                 return CreatedAtAction(nameof(GetEmployeeById), new { id = employee.Id }, employee);
@@ -149,7 +149,7 @@ namespace WebAPI.Controllers
             try
             {
                 _logger.LogInformation($"Updating employee with ID {id}");
-                Employee existingEmployee = Services.DataService.GetEmployeeById(id);
+                Employee existingEmployee = DataService.GetEmployeeById(id);
 
                 if (existingEmployee == null)
                 {
@@ -157,7 +157,7 @@ namespace WebAPI.Controllers
                     return NotFound();
                 }
 
-                Services.DataService.UpdateEmployee(employee);
+                DataService.UpdateEmployee(employee);
                 _logger.LogInformation($"Employee with ID {id} updated successfully");
 
                 return Ok();
@@ -176,7 +176,7 @@ namespace WebAPI.Controllers
         public IActionResult DeleteEmployee(int id)
         {
             _logger.LogInformation($"Deleting employee with ID {id}");
-            var employee = Services.DataService.GetEmployeeById(id);
+            var employee = DataService.GetEmployeeById(id);
 
             if (employee == null)
             {
@@ -184,7 +184,7 @@ namespace WebAPI.Controllers
                 return NotFound();
             }
 
-            Services.DataService.DeleteEmployeeById(id);
+            DataService.DeleteEmployeeById(id);
             _logger.LogInformation($"Employee with ID {id} deleted successfully");
 
             return Ok();
@@ -201,14 +201,14 @@ namespace WebAPI.Controllers
             {
                 _logger.LogInformation($"Assigning employee with ID {employeeId} to department with ID {departmentId}");
 
-                var employee = Services.DataService.GetEmployeeById(employeeId);
+                var employee = DataService.GetEmployeeById(employeeId);
                 if (employee == null)
                 {
                     _logger.LogError($"Employee with ID {employeeId} not found");
                     return NotFound();
                 }
 
-                var department = Services.DataService.GetDepartmentById(departmentId);
+                var department = DataService.GetDepartmentById(departmentId);
                 if (department == null)
                 {
                     _logger.LogError($"Department with ID {departmentId} not found");
@@ -216,7 +216,7 @@ namespace WebAPI.Controllers
                 }
 
                 employee.Department = department;
-                Services.DataService.UpdateEmployee(employee);
+                DataService.UpdateEmployee(employee);
 
                 _logger.LogInformation($"Employee with ID {employeeId} assigned to department with ID {departmentId}");
                 return Ok(employee);
@@ -239,7 +239,7 @@ namespace WebAPI.Controllers
             {
                 _logger.LogInformation($"Removing department from employee with ID {employeeId}");
 
-                var employee = Services.DataService.GetEmployeeById(employeeId);
+                var employee = DataService.GetEmployeeById(employeeId);
                 if (employee == null)
                 {
                     _logger.LogError($"Employee with ID {employeeId} not found");
@@ -247,7 +247,7 @@ namespace WebAPI.Controllers
                 }
 
                 employee.Department = null;
-                Services.DataService.UpdateEmployee(employee);
+                DataService.UpdateEmployee(employee);
 
                 _logger.LogInformation($"Department removed from employee with ID {employeeId}");
                 return Ok(employee);

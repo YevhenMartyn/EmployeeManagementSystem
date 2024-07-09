@@ -1,7 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc.ModelBinding;
+﻿using BusinessLogicLayer.Services;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using WebAPI.Models;
 
-namespace WebAPI.ModelBinders
+namespace PresentationLayer.ModelBinders
 {
     public class EmployeeModelBinder : IModelBinder
     {
@@ -29,7 +30,7 @@ namespace WebAPI.ModelBinders
             var departmentIdValueProviderResult = bindingContext.ValueProvider.GetValue("departmentId");
             if (departmentIdValueProviderResult != ValueProviderResult.None && int.TryParse(departmentIdValueProviderResult.FirstValue, out var departmentId))
             {
-                result.Department = Services.DataService.GetDepartmentById(departmentId);
+                result.Department = DataService.GetDepartmentById(departmentId);
             }
 
             var startDateValueProviderResult = bindingContext.ValueProvider.GetValue("startDate");

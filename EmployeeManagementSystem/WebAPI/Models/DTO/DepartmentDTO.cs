@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace PresentationLayer.Models
+namespace PresentationLayer.Models.DTO
 {
-    public class Department
+    public class DepartmentDTO
     {
         public int Id { get; set; }
         [Required]

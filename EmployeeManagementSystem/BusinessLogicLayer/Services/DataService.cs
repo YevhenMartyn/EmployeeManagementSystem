@@ -1,6 +1,6 @@
-﻿using WebAPI.Models;
+﻿using PresentationLayer.Models;
 
-namespace WebAPI.Services
+namespace BusinessLogicLayer.Services
 {
     public static class DataService
     {

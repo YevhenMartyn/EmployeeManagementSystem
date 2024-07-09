@@ -1,7 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using WebAPI.Models;
+using PresentationLayer.Models;
+using BusinessLogicLayer.Services;
 
-namespace WebAPI.Controllers
+namespace PresentationLayer.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
@@ -20,7 +21,7 @@ namespace WebAPI.Controllers
         public IActionResult GetAllDepartments()
         {
             _logger.LogInformation("Fetching all departments");
-            var departments = Services.DataService.GetAllDepartments();
+            var departments = DataService.GetAllDepartments();
             return Ok(departments);
         }
 
@@ -31,7 +32,7 @@ namespace WebAPI.Controllers
         public IActionResult GetDepartmentById(int id)
         {
             _logger.LogInformation($"Fetching department with ID {id}");
-            var department = Services.DataService.GetDepartmentById(id);
+            var department = DataService.GetDepartmentById(id);
 
             if (department == null)
             {
@@ -55,7 +56,7 @@ namespace WebAPI.Controllers
             }
 
             // Check for uniqueness
-            if (Services.DataService.GetAllDepartments().FirstOrDefault(d => d.Name.ToLower() == department.Name.ToLower()) != null)
+            if (DataService.GetAllDepartments().FirstOrDefault(d => d.Name.ToLower() == department.Name.ToLower()) != null)
             {
                 _logger.LogError("Department with the same name already exists");
                 ModelState.AddModelError("AlreadyExistsError", "Such department already exists");
@@ -63,7 +64,7 @@ namespace WebAPI.Controllers
             }
 
             _logger.LogInformation("Adding a new department");
-            Services.DataService.AddDepartment(department);
+            DataService.AddDepartment(department);
             _logger.LogInformation($"Department with ID {department.Id} added successfully");
             return CreatedAtAction(nameof(GetDepartmentById), new { id = department.Id }, department);
         }
@@ -88,14 +89,14 @@ namespace WebAPI.Controllers
             }
 
             _logger.LogInformation($"Updating department with ID {id}");
-            Department existingDepartment = Services.DataService.GetDepartmentById(id);
+            Department existingDepartment = DataService.GetDepartmentById(id);
             if (existingDepartment == null)
             {
                 _logger.LogError($"Department with ID {id} not found");
                 return NotFound();
             }
 
-            Services.DataService.UpdateDepartment(department);
+            DataService.UpdateDepartment(department);
             _logger.LogInformation($"Department with ID {id} updated successfully");
 
             return Ok();
@@ -108,7 +109,7 @@ namespace WebAPI.Controllers
         public IActionResult DeleteDepartment(int id)
         {
             _logger.LogInformation($"Deleting department with ID {id}");
-            var department = Services.DataService.GetDepartmentById(id);
+            var department = DataService.GetDepartmentById(id);
 
             if (department == null)
             {
@@ -116,7 +117,7 @@ namespace WebAPI.Controllers
                 return NotFound();
             }
 
-            Services.DataService.DeleteDepartmentById(id);
+            DataService.DeleteDepartmentById(id);
             _logger.LogInformation($"Department with ID {id} deleted successfully");
 
             return Ok();
