@@ -1,6 +1,5 @@
-﻿using PresentationLayer.Services;
+﻿
 using Microsoft.AspNetCore.Mvc.ModelBinding;
-using PresentationLayer.Services;
 using PresentationLayer.Models;
 
 namespace PresentationLayer.ModelBinders
@@ -14,7 +13,7 @@ namespace PresentationLayer.ModelBinders
                 throw new ArgumentNullException(nameof(bindingContext));
             }
 
-            var result = new Employee();
+            var result = new EmployeeDTO();
 
             var nameValueProviderResult = bindingContext.ValueProvider.GetValue("name");
             if (nameValueProviderResult != ValueProviderResult.None)

@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using BusinessLogicLayer.Interface;
 using PresentationLayer.Models;
+using AutoMapper;
+using BusinessLogicLayer.Models;
 
 namespace PresentationLayer.Controllers
 {
@@ -10,12 +12,15 @@ namespace PresentationLayer.Controllers
     {
         private readonly ILogger<DepartmentController> _logger;
         private readonly IDepartmentService _departmentService;
+        private readonly IMapper _mapper;
         public DepartmentController(
             ILogger<DepartmentController> logger,
-            IDepartmentService departmentService)
+            IDepartmentService departmentService,
+            IMapper mapper)
         {
             _logger = logger;
             _departmentService = departmentService;
+            _mapper = mapper;
         }
 
         // GET all action
@@ -24,7 +29,7 @@ namespace PresentationLayer.Controllers
         public IActionResult GetAllDepartments()
         {
             _logger.LogInformation("Fetching all departments");
-            var departments = _departmentService.GetAll();
+            var departments = _mapper.Map<List<DepartmentDTO>>(_departmentService.GetAll());
             return Ok(departments);
         }
 
@@ -35,7 +40,7 @@ namespace PresentationLayer.Controllers
         public IActionResult GetDepartmentById(int id)
         {
             _logger.LogInformation($"Fetching department with ID {id}");
-            var department = _departmentService.GetById(id);
+            var department = _mapper.Map<DepartmentDTO>(_departmentService.GetById(id));
 
             if (department == null)
             {
@@ -59,7 +64,7 @@ namespace PresentationLayer.Controllers
             }
 
             // Check for uniqueness
-            if (_departmentService.GetAll().FirstOrDefault(d => d.Name.ToLower() == department.Name.ToLower()) != null)
+            if (_mapper.Map<List<DepartmentDTO>>(_departmentService.GetAll()).FirstOrDefault(d => d.Name.ToLower() == department.Name.ToLower()) != null)
             {
                 _logger.LogError("Department with the same name already exists");
                 ModelState.AddModelError("AlreadyExistsError", "Such department already exists");
@@ -67,7 +72,7 @@ namespace PresentationLayer.Controllers
             }
 
             _logger.LogInformation("Adding a new department");
-            _departmentService.Create(department);
+            _departmentService.Create(_mapper.Map<Department>(department));
             _logger.LogInformation($"Department with ID {department.Id} added successfully");
             return CreatedAtAction(nameof(GetDepartmentById), new { id = department.Id }, department);
         }
@@ -92,14 +97,14 @@ namespace PresentationLayer.Controllers
             }
 
             _logger.LogInformation($"Updating department with ID {id}");
-            DepartmentDTO existingDepartment = _departmentService.GetById(id);
+            DepartmentDTO existingDepartment = _mapper.Map<DepartmentDTO>(_departmentService.GetById(id));
             if (existingDepartment == null)
             {
                 _logger.LogError($"Department with ID {id} not found");
                 return NotFound();
             }
 
-            _departmentService.Update(department);
+            _departmentService.Update(_mapper.Map<Department>(department));
             _logger.LogInformation($"Department with ID {id} updated successfully");
 
             return Ok();
@@ -112,7 +117,7 @@ namespace PresentationLayer.Controllers
         public IActionResult DeleteDepartment(int id)
         {
             _logger.LogInformation($"Deleting department with ID {id}");
-            var department = _departmentService.GetById(id);
+            var department = _mapper.Map<DepartmentDTO>(_departmentService.GetById(id));
 
             if (department == null)
             {

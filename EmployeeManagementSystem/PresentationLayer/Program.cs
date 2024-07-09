@@ -6,17 +6,25 @@ using DataAccessLayer.Interface;
 using DataAccessLayer.Repositories;
 using BusinessLogicLayer.Interface;
 using BusinessLogicLayer.Services;
+using PresentationLayer.Mapping;
+using BusinessLogicLayer.Mapping;
 
 var builder = WebApplication.CreateBuilder(args);
 
-
-Log.Logger = new LoggerConfiguration().MinimumLevel.Information()
+//Logger
+Log.Logger = new LoggerConfiguration().MinimumLevel.Warning()
     .WriteTo.File("log/logs.txt", rollingInterval: RollingInterval.Day).CreateLogger();
-
 builder.Host.UseSerilog();
+
+//DB connection
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+//Mapping Profiles
+builder.Services.AddAutoMapper(typeof(BusinessMappingProfile));
+builder.Services.AddAutoMapper(typeof(PresentationMappingProfile));
+
+//DI
 builder.Services.AddScoped<IDepartmentRepository, DepartmentRepository>();
 builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
 builder.Services.AddScoped<IDepartmentService, DepartmentService>();

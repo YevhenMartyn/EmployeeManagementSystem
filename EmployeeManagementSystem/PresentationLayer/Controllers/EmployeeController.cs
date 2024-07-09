@@ -1,5 +1,7 @@
 ﻿
+using AutoMapper;
 using BusinessLogicLayer.Interface;
+using BusinessLogicLayer.Models;
 using Microsoft.AspNetCore.Mvc;
 using PresentationLayer.ModelBinders;
 using PresentationLayer.Models;
@@ -12,26 +14,28 @@ namespace PresentationLayer.Controllers
     {
         private readonly ILogger<EmployeeController> _logger;
         private readonly IEmployeeService _employeeService;
+        private readonly IMapper _mapper;
 
-        public EmployeeController(ILogger<EmployeeController> logger, IEmployeeService employeeService)
+        public EmployeeController(ILogger<EmployeeController> logger, IEmployeeService employeeService, IMapper mapper)
         {
             _logger = logger;
             _employeeService = employeeService;
+            _mapper = mapper;
         }
 
         // GET all action
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public IActionResult GetAllEmployees([FromQuery(Name = "filterByDepartmentName")] string? departmentName,
+        public IActionResult GetAllEmployees([FromQuery(Name = "filterByDepartmentId")] int? departmentId,
                                              [FromQuery(Name = "startedAfterDate")] DateTime? fromDate,
                                              [FromQuery(Name = "startedBeforeDate")] DateTime? toDate)
         {
             _logger.LogInformation("Fetching all employees");
-            IEnumerable<Employee> employees = DataService.GetAllEmployees();
+            IEnumerable<EmployeeDTO> employees = _mapper.Map<List<EmployeeDTO>>(_employeeService.GetAll());
 
-            if (departmentName != null)
+            if (departmentId != null)
             {
-                employees = DataService.GetAllEmployees().Where(n => n.Department.Name == departmentName);
+                employees = employees.Where(n => n.DepartmentId == departmentId);
             }
 
             if (fromDate.HasValue)
@@ -54,7 +58,7 @@ namespace PresentationLayer.Controllers
         public IActionResult GetEmployeeById(int id)
         {
             _logger.LogInformation($"Fetching employee with ID {id}");
-            var employee = DataService.GetEmployeeById(id);
+            var employee = _mapper.Map<EmployeeDTO>(_employeeService.GetById(id));
 
             if (employee == null)
             {
@@ -69,9 +73,9 @@ namespace PresentationLayer.Controllers
         [HttpGet("search")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public IActionResult SearchEmployees([ModelBinder(BinderType = typeof(EmployeeModelBinder))] Employee searchParams)
+        public IActionResult SearchEmployees([ModelBinder(BinderType = typeof(EmployeeModelBinder))] EmployeeDTO searchParams)
         {
-            var employees = DataService.GetAllEmployees();
+            var employees = _mapper.Map<List<EmployeeDTO>>(_employeeService.GetAll());
 
             if (!string.IsNullOrEmpty(searchParams.Name))
             {
@@ -83,9 +87,9 @@ namespace PresentationLayer.Controllers
                 employees = employees.Where(e => e.Position.Contains(searchParams.Position, StringComparison.OrdinalIgnoreCase)).ToList();
             }
 
-            if (searchParams.Department != null && searchParams.Department.Id > 0)
+            if (searchParams.DepartmentId > 0)
             {
-                employees = employees.Where(e => e.Department.Id == searchParams.Department.Id).ToList();
+                employees = employees.Where(e => e.DepartmentId == searchParams.DepartmentId).ToList();
             }
 
             if (searchParams.StartDate != default)
@@ -107,7 +111,7 @@ namespace PresentationLayer.Controllers
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public IActionResult AddEmployee(Employee employee)
+        public IActionResult AddEmployee(EmployeeDTO employee)
         {
             if (!ModelState.IsValid)
             {
@@ -118,7 +122,7 @@ namespace PresentationLayer.Controllers
             try
             {
                 _logger.LogInformation("Adding a new employee");
-                DataService.AddEmployee(employee);
+                _employeeService.Create(_mapper.Map<Employee>(employee));
 
                 _logger.LogInformation($"Employee with ID {employee.Id} added successfully");
                 return CreatedAtAction(nameof(GetEmployeeById), new { id = employee.Id }, employee);
@@ -135,7 +139,7 @@ namespace PresentationLayer.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public IActionResult UpdateEmployee(int id, Employee employee)
+        public IActionResult UpdateEmployee(int id, EmployeeDTO employee)
         {
             if (!ModelState.IsValid)
             {
@@ -152,7 +156,7 @@ namespace PresentationLayer.Controllers
             try
             {
                 _logger.LogInformation($"Updating employee with ID {id}");
-                Employee existingEmployee = DataService.GetEmployeeById(id);
+                EmployeeDTO existingEmployee = _mapper.Map<EmployeeDTO>(_employeeService.GetById(id));
 
                 if (existingEmployee == null)
                 {
@@ -160,7 +164,7 @@ namespace PresentationLayer.Controllers
                     return NotFound();
                 }
 
-                DataService.UpdateEmployee(employee);
+                _employeeService.Update(_mapper.Map<Employee>(employee));
                 _logger.LogInformation($"Employee with ID {id} updated successfully");
 
                 return Ok();
@@ -179,7 +183,7 @@ namespace PresentationLayer.Controllers
         public IActionResult DeleteEmployee(int id)
         {
             _logger.LogInformation($"Deleting employee with ID {id}");
-            var employee = DataService.GetEmployeeById(id);
+            var employee = _mapper.Map<EmployeeDTO>(_employeeService.GetById(id));
 
             if (employee == null)
             {
@@ -187,7 +191,7 @@ namespace PresentationLayer.Controllers
                 return NotFound();
             }
 
-            DataService.DeleteEmployeeById(id);
+            _employeeService.Delete(id);
             _logger.LogInformation($"Employee with ID {id} deleted successfully");
 
             return Ok();
@@ -204,22 +208,21 @@ namespace PresentationLayer.Controllers
             {
                 _logger.LogInformation($"Assigning employee with ID {employeeId} to department with ID {departmentId}");
 
-                var employee = DataService.GetEmployeeById(employeeId);
+                var employee = _mapper.Map<EmployeeDTO>(_employeeService.GetById(employeeId));
                 if (employee == null)
                 {
                     _logger.LogError($"Employee with ID {employeeId} not found");
                     return NotFound();
                 }
 
-                var department = DataService.GetDepartmentById(departmentId);
-                if (department == null)
+                if (departmentId == 0) // maybe not correct
                 {
                     _logger.LogError($"Department with ID {departmentId} not found");
                     return NotFound();
                 }
 
-                employee.Department = department;
-                DataService.UpdateEmployee(employee);
+                employee.DepartmentId = departmentId;
+                _employeeService.Update(_mapper.Map<Employee>(employee));
 
                 _logger.LogInformation($"Employee with ID {employeeId} assigned to department with ID {departmentId}");
                 return Ok(employee);
@@ -242,15 +245,15 @@ namespace PresentationLayer.Controllers
             {
                 _logger.LogInformation($"Removing department from employee with ID {employeeId}");
 
-                var employee = DataService.GetEmployeeById(employeeId);
+                var employee = _mapper.Map<EmployeeDTO>(_employeeService.GetById(employeeId));
                 if (employee == null)
                 {
                     _logger.LogError($"Employee with ID {employeeId} not found");
                     return NotFound();
                 }
 
-                employee.Department = null;
-                DataService.UpdateEmployee(employee);
+                employee.DepartmentId = 0;
+                _employeeService.Update(_mapper.Map<Employee>(employee));
 
                 _logger.LogInformation($"Department removed from employee with ID {employeeId}");
                 return Ok(employee);

@@ -20,7 +20,7 @@ namespace BusinessLogicLayer.Services
             throw new NotImplementedException();
         }
 
-        public IEnumerable<Department> GetAll()
+        public List<Department> GetAll()
         {
             throw new NotImplementedException();
         }

@@ -9,7 +9,7 @@ namespace BusinessLogicLayer.Interface
 {
     public interface IDepartmentService
     {
-        IEnumerable<Department> GetAll();
+        List<Department> GetAll();
         Department GetById(int id);
         void Create(Department department);
         void Update(Department department);

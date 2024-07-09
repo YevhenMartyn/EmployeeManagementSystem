@@ -13,7 +13,7 @@ namespace PresentationLayer.ModelBinders
                 throw new ArgumentNullException(nameof(context));
             }
 
-            if (context.Metadata.ModelType == typeof(Employee))
+            if (context.Metadata.ModelType == typeof(EmployeeDTO))
             {
                 return new BinderTypeModelBinder(typeof(EmployeeModelBinder));
             }

@@ -9,7 +9,7 @@ namespace BusinessLogicLayer.Interface
 {
     public interface IEmployeeService
     {
-        IEnumerable<Employee> GetAll();
+        List<Employee> GetAll();
         Employee GetById(int id);
         void Create(Employee employee);
         void Update(Employee employee);
