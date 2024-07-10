@@ -121,7 +121,7 @@ namespace PresentationLayer.Controllers
             try
             {
                 _logger.LogInformation("Adding a new employee");
-                _employeeService.Create(_mapper.Map<Employee>(employee));
+                _employeeService.Create(_mapper.Map<EmployeeModel>(employee));
 
                 _logger.LogInformation($"Employee with ID {employee.Id} added successfully");
                 return CreatedAtAction(nameof(GetEmployeeById), new { id = employee.Id }, employee);
@@ -163,7 +163,7 @@ namespace PresentationLayer.Controllers
                     return NotFound();
                 }
 
-                _employeeService.Update(_mapper.Map<Employee>(employee));
+                _employeeService.Update(_mapper.Map<EmployeeModel>(employee));
                 _logger.LogInformation($"Employee with ID {id} updated successfully");
 
                 return Ok();
@@ -221,7 +221,7 @@ namespace PresentationLayer.Controllers
                 }
 
                 employee.DepartmentId = departmentId;
-                _employeeService.Update(_mapper.Map<Employee>(employee));
+                _employeeService.Update(_mapper.Map<EmployeeModel>(employee));
 
                 _logger.LogInformation($"Employee with ID {employeeId} assigned to department with ID {departmentId}");
                 return Ok(employee);
@@ -252,7 +252,7 @@ namespace PresentationLayer.Controllers
                 }
 
                 employee.DepartmentId = -1;
-                _employeeService.Update(_mapper.Map<Employee>(employee));
+                _employeeService.Update(_mapper.Map<EmployeeModel>(employee));
 
                 _logger.LogInformation($"Department removed from employee with ID {employeeId}");
                 return Ok(employee);

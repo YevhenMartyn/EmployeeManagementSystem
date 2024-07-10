@@ -14,7 +14,7 @@ namespace BusinessLogicLayer.Services
             _repository = repository;
             _mapper = mapper;
         }
-        public void Create(Employee employee)
+        public void Create(EmployeeModel employee)
         {
             _repository.Create(_mapper.Map<DataAccessLayer.Entities.EmployeeEntity>(employee));
         }
@@ -24,19 +24,19 @@ namespace BusinessLogicLayer.Services
             _repository.Delete(id);
         }
 
-        public IList<Employee> GetAll()
+        public IList<EmployeeModel> GetAll()
         {
-            IList<Employee> employees = _mapper.Map<IList<Employee>>(_repository.GetAll());
+            IList<EmployeeModel> employees = _mapper.Map<IList<EmployeeModel>>(_repository.GetAll());
             return employees;
         }
 
-        public Employee GetById(int id)
+        public EmployeeModel GetById(int id)
         {
-            Employee employee = _mapper.Map<Employee>(_repository.GetById(id));
+            EmployeeModel employee = _mapper.Map<EmployeeModel>(_repository.GetById(id));
             return employee;
         }
 
-        public void Update(Employee employee)
+        public void Update(EmployeeModel employee)
         {
             _repository.Update(_mapper.Map<DataAccessLayer.Entities.EmployeeEntity>(employee));
         }

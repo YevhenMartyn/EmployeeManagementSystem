@@ -44,7 +44,7 @@ namespace DataAccessLayer.Repositories
             return query.FirstOrDefault(e => e.Id == id);
         }
 
-        public void SaveChanges()
+        private void SaveChanges()
         {
             _dbContext.SaveChanges();
         }
@@ -54,11 +54,6 @@ namespace DataAccessLayer.Repositories
             if (entity.DepartmentId != null && !_dbContext.Departments.Any(d => d.Id == entity.DepartmentId))
             {
                 throw new Exception("Invalid DepartmentId");
-            }
-
-            if (!entity.DepartmentId.HasValue)
-            {
-                entity.DepartmentId = -1;
             }
 
             _dbContext.Employees.Update(entity);

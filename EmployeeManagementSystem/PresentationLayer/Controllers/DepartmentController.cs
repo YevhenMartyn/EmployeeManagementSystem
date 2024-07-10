@@ -72,7 +72,7 @@ namespace PresentationLayer.Controllers
             }
 
             _logger.LogInformation("Adding a new department");
-            _departmentService.Create(_mapper.Map<Department>(department));
+            _departmentService.Create(_mapper.Map<DepartmentModel>(department));
             _logger.LogInformation($"Department with ID {department.Id} added successfully");
             return CreatedAtAction(nameof(GetDepartmentById), new { id = department.Id }, department);
         }
@@ -104,7 +104,7 @@ namespace PresentationLayer.Controllers
                 return NotFound();
             }
 
-            _departmentService.Update(_mapper.Map<Department>(department));
+            _departmentService.Update(_mapper.Map<DepartmentModel>(department));
             _logger.LogInformation($"Department with ID {id} updated successfully");
 
             return Ok();

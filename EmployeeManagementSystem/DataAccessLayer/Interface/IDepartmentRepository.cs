@@ -9,6 +9,5 @@ namespace DataAccessLayer.Interface
         void Create(DepartmentEntity department);
         void Update(DepartmentEntity department);
         void Delete(int id);
-        void SaveChanges();
     }
 }

@@ -7,10 +7,10 @@ namespace BusinessLogicLayer.Mapping
         public BusinessMappingProfile()
         {
             //Departments
-            CreateMap<BusinessLogicLayer.Models.Department, DataAccessLayer.Entities.DepartmentEntity>().ReverseMap();
+            CreateMap<BusinessLogicLayer.Models.DepartmentModel, DataAccessLayer.Entities.DepartmentEntity>().ReverseMap();
 
             //Employees
-            CreateMap<BusinessLogicLayer.Models.Employee, DataAccessLayer.Entities.EmployeeEntity>().ReverseMap();
+            CreateMap<BusinessLogicLayer.Models.EmployeeModel, DataAccessLayer.Entities.EmployeeEntity>().ReverseMap();
         }
     }
 }

@@ -36,7 +36,7 @@ namespace DataAccessLayer.Repositories
             return query.ToList();
         }
 
-        public void SaveChanges()
+        private void SaveChanges()
         {
             _dbContext.SaveChanges();
         }

@@ -10,7 +10,6 @@ namespace DataAccessLayer.Interface
         void Create(EmployeeEntity employee);
         void Update(EmployeeEntity employee);
         void Delete(int id);
-        void SaveChanges();
 
     }
 }

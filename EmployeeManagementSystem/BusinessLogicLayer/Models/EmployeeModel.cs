@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace BusinessLogicLayer.Models
 {
-    public class Employee
+    public class EmployeeModel
     {
         public int Id { get; set; }
         [Required]
@@ -12,7 +12,7 @@ namespace BusinessLogicLayer.Models
         [Required]
         [MaxLength(30)]
         public string Position { get; set; }
-        public int DepartmentId { get; set; } = -1;
+        public int? DepartmentId { get; set; } = -1;
         [Required]
         public DateTime StartDate { get; set; }
     }

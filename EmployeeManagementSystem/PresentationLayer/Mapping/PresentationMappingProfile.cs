@@ -7,10 +7,10 @@ namespace PresentationLayer.Mapping
         public PresentationMappingProfile()
         {
             //Departments
-            CreateMap<BusinessLogicLayer.Models.Department, Models.DepartmentDTO>().ReverseMap();
+            CreateMap<BusinessLogicLayer.Models.DepartmentModel, Models.DepartmentDTO>().ReverseMap();
 
             //Employees
-            CreateMap<BusinessLogicLayer.Models.Employee, Models.EmployeeDTO>().ReverseMap();
+            CreateMap<BusinessLogicLayer.Models.EmployeeModel, Models.EmployeeDTO>().ReverseMap();
         }
     }
 }

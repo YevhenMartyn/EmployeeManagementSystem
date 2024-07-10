@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DataAccessLayer.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240709112750_AddTables")]
-    partial class AddTables
+    [Migration("20240710130901_InitialTablesCreation")]
+    partial class InitialTablesCreation
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -25,7 +25,7 @@ namespace DataAccessLayer.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("DataAccessLayer.Entities.Department", b =>
+            modelBuilder.Entity("DataAccessLayer.Entities.DepartmentEntity", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -35,14 +35,15 @@ namespace DataAccessLayer.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
 
                     b.HasKey("Id");
 
                     b.ToTable("Departments");
                 });
 
-            modelBuilder.Entity("DataAccessLayer.Entities.Employee", b =>
+            modelBuilder.Entity("DataAccessLayer.Entities.EmployeeEntity", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -50,16 +51,21 @@ namespace DataAccessLayer.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("DepartmentId")
+                    b.Property<int?>("DepartmentId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("DepartmentId1")
                         .HasColumnType("int");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
 
                     b.Property<string>("Position")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
 
                     b.Property<DateTime>("StartDate")
                         .HasColumnType("datetime2");
@@ -68,16 +74,21 @@ namespace DataAccessLayer.Migrations
 
                     b.HasIndex("DepartmentId");
 
+                    b.HasIndex("DepartmentId1");
+
                     b.ToTable("Employees");
                 });
 
-            modelBuilder.Entity("DataAccessLayer.Entities.Employee", b =>
+            modelBuilder.Entity("DataAccessLayer.Entities.EmployeeEntity", b =>
                 {
-                    b.HasOne("DataAccessLayer.Entities.Department", "Department")
+                    b.HasOne("DataAccessLayer.Entities.DepartmentEntity", null)
                         .WithMany()
                         .HasForeignKey("DepartmentId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("DataAccessLayer.Entities.DepartmentEntity", "Department")
+                        .WithMany()
+                        .HasForeignKey("DepartmentId1");
 
                     b.Navigation("Department");
                 });
