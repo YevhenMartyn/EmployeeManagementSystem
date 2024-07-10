@@ -6,31 +6,31 @@ namespace DataAccessLayer.Data
     public class ApplicationDbContext : DbContext
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
-        public DbSet<Employee> Employees { get; set; }
-        public DbSet<Department> Departments { get; set; }
+        public DbSet<EmployeeEntity> Employees { get; set; }
+        public DbSet<DepartmentEntity> Departments { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Department>().HasData(
-                new Department()
+            modelBuilder.Entity<DepartmentEntity>().HasData(
+                new DepartmentEntity()
                 {
                     Id = -1,
                     Name = "No Department"
                 },
-                new Department()
+                new DepartmentEntity()
                 {
                     Id = 1,
                     Name = "d1"
                 },
-                new Department()
+                new DepartmentEntity()
                 {
                     Id = 2,
                     Name = "d2"
                 }
                 );
 
-            modelBuilder.Entity<Employee>().HasData(
-                new Employee()
+            modelBuilder.Entity<EmployeeEntity>().HasData(
+                new EmployeeEntity()
                 {
                     Id = 1,
                     Name = "n1",
@@ -38,7 +38,7 @@ namespace DataAccessLayer.Data
                     DepartmentId = 1,
                     StartDate = new DateTime(2023, 4, 7),
                 },
-                new Employee()
+                new EmployeeEntity()
                 {
                     Id = 2,
                     Name = "n2",
@@ -46,7 +46,7 @@ namespace DataAccessLayer.Data
                     DepartmentId = 2,
                     StartDate = new DateTime(2023, 7, 15),
                 },
-                new Employee()
+                new EmployeeEntity()
                 {
                     Id = 3,
                     Name = "n2",

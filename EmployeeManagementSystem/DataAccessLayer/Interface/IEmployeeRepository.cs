@@ -5,10 +5,10 @@ namespace DataAccessLayer.Interface
 {
     public interface IEmployeeRepository
     {
-        List<Employee> GetAll(Expression<Func<Employee, bool>> filter = null);
-        Employee GetById(int id);
-        void Create(Employee employee);
-        void Update(Employee employee);
+        List<EmployeeEntity> GetAll(Expression<Func<EmployeeEntity, bool>> filter = null);
+        EmployeeEntity GetById(int id);
+        void Create(EmployeeEntity employee);
+        void Update(EmployeeEntity employee);
         void Delete(int id);
         void SaveChanges();
         

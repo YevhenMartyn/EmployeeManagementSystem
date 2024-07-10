@@ -18,7 +18,7 @@ namespace BusinessLogicLayer.Services
         }
         public void Create(Department department)
         {
-            _repository.Create(_mapper.Map<DataAccessLayer.Entities.Department>(department));
+            _repository.Create(_mapper.Map<DataAccessLayer.Entities.DepartmentEntity>(department));
         }
 
         public void Delete(int id)
@@ -47,7 +47,7 @@ namespace BusinessLogicLayer.Services
 
         public void Update(Department department)
         {
-            _repository.Update(_mapper.Map<DataAccessLayer.Entities.Department>(department));
+            _repository.Update(_mapper.Map<DataAccessLayer.Entities.DepartmentEntity>(department));
         }
     }
 }

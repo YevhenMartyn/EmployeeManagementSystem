@@ -12,7 +12,7 @@ namespace DataAccessLayer.Repositories
         {
             _dbContext = dbContext;
         }
-        public void Create(Department entity)
+        public void Create(DepartmentEntity entity)
         {
             _dbContext.Departments.Add(entity);
             SaveChanges();
@@ -24,15 +24,15 @@ namespace DataAccessLayer.Repositories
             SaveChanges();
         }
 
-        public Department GetById(int id)
+        public DepartmentEntity GetById(int id)
         {
-            IQueryable<Department> query = _dbContext.Departments.AsNoTracking(); 
+            IQueryable<DepartmentEntity> query = _dbContext.Departments.AsNoTracking(); 
             return query.FirstOrDefault(d => d.Id == id);
         }
 
-        public List<Department> GetAll()
+        public List<DepartmentEntity> GetAll()
         {
-            IQueryable<Department> query = _dbContext.Departments.AsNoTracking();
+            IQueryable<DepartmentEntity> query = _dbContext.Departments.AsNoTracking();
             return query.ToList();
         }
 
@@ -41,7 +41,7 @@ namespace DataAccessLayer.Repositories
             _dbContext.SaveChanges();
         }
 
-        public void Update(Department entity)
+        public void Update(DepartmentEntity entity)
         {
             _dbContext.Departments.Update(entity);
             SaveChanges();
