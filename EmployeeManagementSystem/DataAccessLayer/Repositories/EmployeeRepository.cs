@@ -32,7 +32,7 @@ namespace DataAccessLayer.Repositories
 
         public List<Employee> GetAll(Expression<Func<Employee, bool>> filter = null)
         {
-            IQueryable<Employee> query = _dbContext.Employees;
+            IQueryable<Employee> query = _dbContext.Employees.AsNoTracking(); 
 
             if (filter != null)
             {
@@ -44,9 +44,9 @@ namespace DataAccessLayer.Repositories
 
         public Employee GetById(int id)
         {
-            IQueryable<Employee> query = _dbContext.Employees;
+            IQueryable<Employee> query = _dbContext.Employees.AsNoTracking();
 
-            return query.FirstOrDefault();
+            return query.FirstOrDefault(e => e.Id == id);
         }
 
         public void SaveChanges()
@@ -56,6 +56,16 @@ namespace DataAccessLayer.Repositories
 
         public void Update(Employee entity)
         {
+            if (entity.DepartmentId != null && !_dbContext.Departments.Any(d => d.Id == entity.DepartmentId))
+            {
+                throw new Exception("Invalid DepartmentId");
+            }
+
+            if (!entity.DepartmentId.HasValue)
+            {
+                entity.DepartmentId = -1;
+            }
+
             _dbContext.Employees.Update(entity);
             SaveChanges();
         }

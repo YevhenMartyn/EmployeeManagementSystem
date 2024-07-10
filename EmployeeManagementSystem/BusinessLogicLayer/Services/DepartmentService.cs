@@ -14,10 +14,12 @@ namespace BusinessLogicLayer.Services
     {
         private readonly IDepartmentRepository _repository;
         private readonly IMapper _mapper;
-        public DepartmentService(IDepartmentRepository repository, IMapper mapper)
+        private readonly IEmployeeRepository _employeeRepository;
+        public DepartmentService(IDepartmentRepository repository, IMapper mapper, IEmployeeRepository employeeRepository)
         {
             _repository = repository;
             _mapper = mapper;
+            _employeeRepository = employeeRepository;
         }
         public void Create(Department department)
         {
@@ -26,6 +28,12 @@ namespace BusinessLogicLayer.Services
 
         public void Delete(int id)
         {
+            var employees = _employeeRepository.GetAll(e => e.DepartmentId == id);
+            foreach (var employee in employees)
+            {
+                employee.DepartmentId = -1;
+                _employeeRepository.Update(employee);
+            }
             _repository.Delete(id);
         }
 

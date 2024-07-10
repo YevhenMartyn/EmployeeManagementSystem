@@ -1,6 +1,7 @@
 ﻿using DataAccessLayer.Data;
 using DataAccessLayer.Entities;
 using DataAccessLayer.Interface;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -30,13 +31,13 @@ namespace DataAccessLayer.Repositories
 
         public Department GetById(int id)
         {
-            IQueryable<Department> query = _dbContext.Departments;
-            return query.FirstOrDefault();
+            IQueryable<Department> query = _dbContext.Departments.AsNoTracking(); 
+            return query.FirstOrDefault(d => d.Id == id);
         }
 
         public List<Department> GetAll()
         {
-            IQueryable<Department> query = _dbContext.Departments;
+            IQueryable<Department> query = _dbContext.Departments.AsNoTracking();
             return query.ToList();
         }
 

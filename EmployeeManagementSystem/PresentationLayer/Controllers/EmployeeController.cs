@@ -252,7 +252,7 @@ namespace PresentationLayer.Controllers
                     return NotFound();
                 }
 
-                employee.DepartmentId = 0;
+                employee.DepartmentId = -1;
                 _employeeService.Update(_mapper.Map<Employee>(employee));
 
                 _logger.LogInformation($"Department removed from employee with ID {employeeId}");

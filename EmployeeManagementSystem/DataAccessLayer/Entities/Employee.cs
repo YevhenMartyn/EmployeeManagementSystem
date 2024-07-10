@@ -11,8 +11,8 @@ namespace DataAccessLayer.Entities
         public string Name { get; set; }
         public string Position { get; set; }
         [ForeignKey("Department")]
-        public int DepartmentId { get; set; }
-        public Department Department { get; set; }
+        public int? DepartmentId { get; set; }
+        public Department? Department { get; set; }
         public DateTime StartDate { get; set; }
     }
 }
