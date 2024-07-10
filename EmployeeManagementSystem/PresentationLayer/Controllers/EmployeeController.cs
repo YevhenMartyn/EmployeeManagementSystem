@@ -1,5 +1,4 @@
-﻿
-using AutoMapper;
+﻿using AutoMapper;
 using BusinessLogicLayer.Interface;
 using BusinessLogicLayer.Models;
 using Microsoft.AspNetCore.Mvc;

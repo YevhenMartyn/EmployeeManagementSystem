@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 
-
 namespace BusinessLogicLayer.Mapping
 {
     public class BusinessMappingProfile : Profile

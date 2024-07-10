@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 
-
 namespace PresentationLayer.Mapping
 {
     public class PresentationMappingProfile : Profile
