@@ -24,11 +24,10 @@ namespace BusinessLogicLayer.Services
             _repository.Delete(id);
         }
 
-        public List<Employee> GetAll()
+        public IList<Employee> GetAll()
         {
-            List<Employee> employees = _mapper.Map<List<Employee>>(_repository.GetAll());
+            IList<Employee> employees = _mapper.Map<IList<Employee>>(_repository.GetAll());
             return employees;
-
         }
 
         public Employee GetById(int id)

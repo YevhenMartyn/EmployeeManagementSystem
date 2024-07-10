@@ -30,7 +30,7 @@ namespace PresentationLayer.Controllers
                                              [FromQuery(Name = "startedBeforeDate")] DateTime? toDate)
         {
             _logger.LogInformation("Fetching all employees");
-            IEnumerable<EmployeeDTO> employees = _mapper.Map<List<EmployeeDTO>>(_employeeService.GetAll());
+            IEnumerable<EmployeeDTO> employees = _mapper.Map<IList<EmployeeDTO>>(_employeeService.GetAll());
 
             if (departmentId != null)
             {
@@ -74,7 +74,7 @@ namespace PresentationLayer.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public IActionResult SearchEmployees([ModelBinder(BinderType = typeof(EmployeeModelBinder))] EmployeeDTO searchParams)
         {
-            var employees = _mapper.Map<List<EmployeeDTO>>(_employeeService.GetAll());
+            var employees = _mapper.Map<IList<EmployeeDTO>>(_employeeService.GetAll());
 
             if (!string.IsNullOrEmpty(searchParams.Name))
             {

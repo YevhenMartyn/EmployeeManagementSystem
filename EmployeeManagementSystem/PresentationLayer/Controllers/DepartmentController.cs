@@ -29,7 +29,7 @@ namespace PresentationLayer.Controllers
         public IActionResult GetAllDepartments()
         {
             _logger.LogInformation("Fetching all departments");
-            var departments = _mapper.Map<List<DepartmentDTO>>(_departmentService.GetAll());
+            var departments = _mapper.Map<IList<DepartmentDTO>>(_departmentService.GetAll());
             return Ok(departments);
         }
 
@@ -64,7 +64,7 @@ namespace PresentationLayer.Controllers
             }
 
             // Check for uniqueness
-            if (_mapper.Map<List<DepartmentDTO>>(_departmentService.GetAll()).FirstOrDefault(d => d.Name.ToLower() == department.Name.ToLower()) != null)
+            if (_mapper.Map<IList<DepartmentDTO>>(_departmentService.GetAll()).FirstOrDefault(d => d.Name.ToLower() == department.Name.ToLower()) != null)
             {
                 _logger.LogError("Department with the same name already exists");
                 ModelState.AddModelError("AlreadyExistsError", "Such department already exists");

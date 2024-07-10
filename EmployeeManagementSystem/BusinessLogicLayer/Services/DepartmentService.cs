@@ -32,9 +32,9 @@ namespace BusinessLogicLayer.Services
             _repository.Delete(id);
         }
 
-        public List<Department> GetAll()
+        public IList<Department> GetAll()
         {
-            List<Department> departments = _mapper.Map<List<Department>>(_repository.GetAll());
+            IList<Department> departments = _mapper.Map<IList<Department>>(_repository.GetAll());
             return departments;
 
         }

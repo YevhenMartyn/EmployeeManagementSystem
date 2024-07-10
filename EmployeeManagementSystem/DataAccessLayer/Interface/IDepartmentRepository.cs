@@ -4,7 +4,7 @@ namespace DataAccessLayer.Interface
 {
     public interface IDepartmentRepository
     {
-        List<DepartmentEntity> GetAll();
+        IList<DepartmentEntity> GetAll();
         DepartmentEntity GetById(int id);
         void Create(DepartmentEntity department);
         void Update(DepartmentEntity department);

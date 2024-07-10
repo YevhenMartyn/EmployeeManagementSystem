@@ -4,7 +4,7 @@ namespace BusinessLogicLayer.Interface
 {
     public interface IEmployeeService
     {
-        List<Employee> GetAll();
+        IList<Employee> GetAll();
         Employee GetById(int id);
         void Create(Employee employee);
         void Update(Employee employee);

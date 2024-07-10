@@ -25,7 +25,7 @@ namespace DataAccessLayer.Repositories
             SaveChanges();
         }
 
-        public List<EmployeeEntity> GetAll(Expression<Func<EmployeeEntity, bool>> filter = null)
+        public IList<EmployeeEntity> GetAll(Expression<Func<EmployeeEntity, bool>> filter = null)
         {
             IQueryable<EmployeeEntity> query = _dbContext.Employees.AsNoTracking(); 
 

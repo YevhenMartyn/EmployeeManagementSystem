@@ -30,7 +30,7 @@ namespace DataAccessLayer.Repositories
             return query.FirstOrDefault(d => d.Id == id);
         }
 
-        public List<DepartmentEntity> GetAll()
+        public IList<DepartmentEntity> GetAll()
         {
             IQueryable<DepartmentEntity> query = _dbContext.Departments.AsNoTracking();
             return query.ToList();

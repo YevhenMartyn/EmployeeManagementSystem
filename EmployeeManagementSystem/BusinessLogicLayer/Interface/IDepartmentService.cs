@@ -4,7 +4,7 @@ namespace BusinessLogicLayer.Interface
 {
     public interface IDepartmentService
     {
-        List<Department> GetAll();
+        IList<Department> GetAll();
         Department GetById(int id);
         void Create(Department department);
         void Update(Department department);
