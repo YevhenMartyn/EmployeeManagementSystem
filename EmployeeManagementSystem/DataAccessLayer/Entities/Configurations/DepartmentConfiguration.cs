@@ -14,6 +14,24 @@ namespace DataAccessLayer.Entities.Configurations
             builder.Property(d => d.Name)
                 .IsRequired()
                 .HasMaxLength(30);
+
+            builder.HasData(
+                new DepartmentEntity()
+                {
+                    Id = -1,
+                    Name = "No Department"
+                },
+                new DepartmentEntity()
+                {
+                    Id = 1,
+                    Name = "d1"
+                },
+                new DepartmentEntity()
+                {
+                    Id = 2,
+                    Name = "d2"
+                }
+                );
         }
     }
 }

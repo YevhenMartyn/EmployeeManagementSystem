@@ -26,6 +26,33 @@ namespace DataAccessLayer.Entities.Configurations
                 .WithMany()
                 .HasForeignKey(e => e.DepartmentId)
                 .OnDelete(DeleteBehavior.SetNull);
+
+            builder.HasData(
+                new EmployeeEntity()
+                {
+                    Id = 1,
+                    Name = "n1",
+                    Position = "p1",
+                    DepartmentId = 1,
+                    StartDate = new DateTime(2023, 4, 7),
+                },
+                new EmployeeEntity()
+                {
+                    Id = 2,
+                    Name = "n2",
+                    Position = "p2",
+                    DepartmentId = 2,
+                    StartDate = new DateTime(2023, 7, 15),
+                },
+                new EmployeeEntity()
+                {
+                    Id = 3,
+                    Name = "n2",
+                    Position = "p2",
+                    DepartmentId = 1,
+                    StartDate = new DateTime(2023, 9, 18),
+                }
+                );
         }
     }
 }
