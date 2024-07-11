@@ -1,8 +1,9 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿
+using System.ComponentModel.DataAnnotations;
 
-namespace WebAPI.Models
+namespace BusinessLogicLayer.Models
 {
-    public class Department
+    public class DepartmentModel
     {
         public int Id { get; set; }
         [Required]

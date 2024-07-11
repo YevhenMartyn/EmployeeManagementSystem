@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Binders;
-using WebAPI.Models;
+using PresentationLayer.Models;
 
-namespace WebAPI.ModelBinders
+namespace PresentationLayer.ModelBinders
 {
     public class EmployeeModelBinderProvider : IModelBinderProvider
     {
@@ -13,7 +13,7 @@ namespace WebAPI.ModelBinders
                 throw new ArgumentNullException(nameof(context));
             }
 
-            if (context.Metadata.ModelType == typeof(Employee))
+            if (context.Metadata.ModelType == typeof(EmployeeDTO))
             {
                 return new BinderTypeModelBinder(typeof(EmployeeModelBinder));
             }

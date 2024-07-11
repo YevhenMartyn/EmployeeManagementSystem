@@ -1,34 +1,40 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using WebAPI.ModelBinders;
-using WebAPI.Models;
-using WebAPI.Services;
+﻿using AutoMapper;
+using BusinessLogicLayer.Interface;
+using BusinessLogicLayer.Models;
+using Microsoft.AspNetCore.Mvc;
+using PresentationLayer.ModelBinders;
+using PresentationLayer.Models;
 
-namespace WebAPI.Controllers
+namespace PresentationLayer.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
     public class EmployeeController : ControllerBase
     {
         private readonly ILogger<EmployeeController> _logger;
+        private readonly IEmployeeService _employeeService;
+        private readonly IMapper _mapper;
 
-        public EmployeeController(ILogger<EmployeeController> logger)
+        public EmployeeController(ILogger<EmployeeController> logger, IEmployeeService employeeService, IMapper mapper)
         {
             _logger = logger;
+            _employeeService = employeeService;
+            _mapper = mapper;
         }
 
         // GET all action
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public IActionResult GetAllEmployees([FromQuery(Name = "filterByDepartmentName")] string? departmentName,
+        public IActionResult GetAllEmployees([FromQuery(Name = "filterByDepartmentId")] int? departmentId,
                                              [FromQuery(Name = "startedAfterDate")] DateTime? fromDate,
                                              [FromQuery(Name = "startedBeforeDate")] DateTime? toDate)
         {
             _logger.LogInformation("Fetching all employees");
-            IEnumerable<Employee> employees = Services.DataService.GetAllEmployees();
+            IEnumerable<EmployeeDTO> employees = _mapper.Map<IList<EmployeeDTO>>(_employeeService.GetAll());
 
-            if (departmentName != null)
+            if (departmentId != null)
             {
-                employees = Services.DataService.GetAllEmployees().Where(n => n.Department.Name == departmentName);
+                employees = employees.Where(n => n.DepartmentId == departmentId);
             }
 
             if (fromDate.HasValue)
@@ -51,7 +57,7 @@ namespace WebAPI.Controllers
         public IActionResult GetEmployeeById(int id)
         {
             _logger.LogInformation($"Fetching employee with ID {id}");
-            var employee = Services.DataService.GetEmployeeById(id);
+            var employee = _mapper.Map<EmployeeDTO>(_employeeService.GetById(id));
 
             if (employee == null)
             {
@@ -66,9 +72,9 @@ namespace WebAPI.Controllers
         [HttpGet("search")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public IActionResult SearchEmployees([ModelBinder(BinderType = typeof(EmployeeModelBinder))] Employee searchParams)
+        public IActionResult SearchEmployees([ModelBinder(BinderType = typeof(EmployeeModelBinder))] EmployeeDTO searchParams)
         {
-            var employees = DataService.GetAllEmployees();
+            var employees = _mapper.Map<IList<EmployeeDTO>>(_employeeService.GetAll());
 
             if (!string.IsNullOrEmpty(searchParams.Name))
             {
@@ -80,12 +86,12 @@ namespace WebAPI.Controllers
                 employees = employees.Where(e => e.Position.Contains(searchParams.Position, StringComparison.OrdinalIgnoreCase)).ToList();
             }
 
-            if (searchParams.Department != null && searchParams.Department.Id > 0)
+            if (searchParams.DepartmentId > 0)
             {
-                employees = employees.Where(e => e.Department.Id == searchParams.Department.Id).ToList();
+                employees = employees.Where(e => e.DepartmentId == searchParams.DepartmentId).ToList();
             }
 
-            if (searchParams.StartDate != default(DateTime))
+            if (searchParams.StartDate != default)
             {
                 employees = employees.Where(e => e.StartDate.Date == searchParams.StartDate.Date).ToList();
             }
@@ -104,7 +110,7 @@ namespace WebAPI.Controllers
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public IActionResult AddEmployee(Employee employee)
+        public IActionResult AddEmployee(EmployeeDTO employee)
         {
             if (!ModelState.IsValid)
             {
@@ -115,7 +121,7 @@ namespace WebAPI.Controllers
             try
             {
                 _logger.LogInformation("Adding a new employee");
-                Services.DataService.AddEmployee(employee);
+                _employeeService.Create(_mapper.Map<EmployeeModel>(employee));
 
                 _logger.LogInformation($"Employee with ID {employee.Id} added successfully");
                 return CreatedAtAction(nameof(GetEmployeeById), new { id = employee.Id }, employee);
@@ -132,7 +138,7 @@ namespace WebAPI.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public IActionResult UpdateEmployee(int id, Employee employee)
+        public IActionResult UpdateEmployee(int id, EmployeeDTO employee)
         {
             if (!ModelState.IsValid)
             {
@@ -149,7 +155,7 @@ namespace WebAPI.Controllers
             try
             {
                 _logger.LogInformation($"Updating employee with ID {id}");
-                Employee existingEmployee = Services.DataService.GetEmployeeById(id);
+                EmployeeDTO existingEmployee = _mapper.Map<EmployeeDTO>(_employeeService.GetById(id));
 
                 if (existingEmployee == null)
                 {
@@ -157,7 +163,7 @@ namespace WebAPI.Controllers
                     return NotFound();
                 }
 
-                Services.DataService.UpdateEmployee(employee);
+                _employeeService.Update(_mapper.Map<EmployeeModel>(employee));
                 _logger.LogInformation($"Employee with ID {id} updated successfully");
 
                 return Ok();
@@ -176,7 +182,7 @@ namespace WebAPI.Controllers
         public IActionResult DeleteEmployee(int id)
         {
             _logger.LogInformation($"Deleting employee with ID {id}");
-            var employee = Services.DataService.GetEmployeeById(id);
+            var employee = _mapper.Map<EmployeeDTO>(_employeeService.GetById(id));
 
             if (employee == null)
             {
@@ -184,7 +190,7 @@ namespace WebAPI.Controllers
                 return NotFound();
             }
 
-            Services.DataService.DeleteEmployeeById(id);
+            _employeeService.Delete(id);
             _logger.LogInformation($"Employee with ID {id} deleted successfully");
 
             return Ok();
@@ -201,22 +207,21 @@ namespace WebAPI.Controllers
             {
                 _logger.LogInformation($"Assigning employee with ID {employeeId} to department with ID {departmentId}");
 
-                var employee = Services.DataService.GetEmployeeById(employeeId);
+                var employee = _mapper.Map<EmployeeDTO>(_employeeService.GetById(employeeId));
                 if (employee == null)
                 {
                     _logger.LogError($"Employee with ID {employeeId} not found");
                     return NotFound();
                 }
 
-                var department = Services.DataService.GetDepartmentById(departmentId);
-                if (department == null)
+                if (departmentId == 0) // maybe not correct
                 {
                     _logger.LogError($"Department with ID {departmentId} not found");
                     return NotFound();
                 }
 
-                employee.Department = department;
-                Services.DataService.UpdateEmployee(employee);
+                employee.DepartmentId = departmentId;
+                _employeeService.Update(_mapper.Map<EmployeeModel>(employee));
 
                 _logger.LogInformation($"Employee with ID {employeeId} assigned to department with ID {departmentId}");
                 return Ok(employee);
@@ -239,15 +244,15 @@ namespace WebAPI.Controllers
             {
                 _logger.LogInformation($"Removing department from employee with ID {employeeId}");
 
-                var employee = Services.DataService.GetEmployeeById(employeeId);
+                var employee = _mapper.Map<EmployeeDTO>(_employeeService.GetById(employeeId));
                 if (employee == null)
                 {
                     _logger.LogError($"Employee with ID {employeeId} not found");
                     return NotFound();
                 }
 
-                employee.Department = null;
-                Services.DataService.UpdateEmployee(employee);
+                employee.DepartmentId = -1;
+                _employeeService.Update(_mapper.Map<EmployeeModel>(employee));
 
                 _logger.LogInformation($"Department removed from employee with ID {employeeId}");
                 return Ok(employee);

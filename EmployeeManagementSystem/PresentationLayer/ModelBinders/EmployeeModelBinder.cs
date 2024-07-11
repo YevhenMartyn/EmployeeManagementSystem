@@ -1,7 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc.ModelBinding;
-using WebAPI.Models;
+﻿
+using Microsoft.AspNetCore.Mvc.ModelBinding;
+using PresentationLayer.Models;
 
-namespace WebAPI.ModelBinders
+namespace PresentationLayer.ModelBinders
 {
     public class EmployeeModelBinder : IModelBinder
     {
@@ -12,7 +13,7 @@ namespace WebAPI.ModelBinders
                 throw new ArgumentNullException(nameof(bindingContext));
             }
 
-            var result = new Employee();
+            var result = new EmployeeDTO();
 
             var nameValueProviderResult = bindingContext.ValueProvider.GetValue("name");
             if (nameValueProviderResult != ValueProviderResult.None)
@@ -29,7 +30,7 @@ namespace WebAPI.ModelBinders
             var departmentIdValueProviderResult = bindingContext.ValueProvider.GetValue("departmentId");
             if (departmentIdValueProviderResult != ValueProviderResult.None && int.TryParse(departmentIdValueProviderResult.FirstValue, out var departmentId))
             {
-                result.Department = Services.DataService.GetDepartmentById(departmentId);
+                result.DepartmentId = departmentId;
             }
 
             var startDateValueProviderResult = bindingContext.ValueProvider.GetValue("startDate");

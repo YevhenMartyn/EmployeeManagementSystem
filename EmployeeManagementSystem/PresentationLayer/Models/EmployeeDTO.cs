@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace WebAPI.Models
+namespace PresentationLayer.Models
 {
-    public class Employee
+    public class EmployeeDTO
     {
         public int Id { get; set; }
         [Required]
@@ -11,7 +11,7 @@ namespace WebAPI.Models
         [Required]
         [MaxLength(30)]
         public string Position { get; set; }
-        public Department Department { get; set; }
+        public int? DepartmentId { get; set; } = -1;
         [Required]
         public DateTime StartDate { get; set; }
     }
