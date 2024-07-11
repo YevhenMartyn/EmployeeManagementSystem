@@ -18,16 +18,6 @@ namespace BusinessLogicLayer.Services
             _mapper = mapper;
             _employeeValidator = employeeValidator;
         }
-        public void Create(EmployeeModel employee)
-        {
-            _repository.Create(_mapper.Map<DataAccessLayer.Entities.EmployeeEntity>(employee));
-        }
-
-        public void Delete(int id)
-        {
-            _repository.Delete(id);
-        }
-
         public IList<EmployeeModel> GetAll()
         {
             IList<EmployeeModel> employees = _mapper.Map<IList<EmployeeModel>>(_repository.GetAll());
@@ -40,9 +30,19 @@ namespace BusinessLogicLayer.Services
             return employee;
         }
 
+        public void Create(EmployeeModel employee)
+        {
+            _repository.Create(_mapper.Map<DataAccessLayer.Entities.EmployeeEntity>(employee));
+        }
+
         public void Update(EmployeeModel employee)
         {
             _repository.Update(_mapper.Map<DataAccessLayer.Entities.EmployeeEntity>(employee));
+        }
+
+        public void Delete(int id)
+        {
+            _repository.Delete(id);
         }
 
         private ValidationResult Validate(EmployeeModel employee)

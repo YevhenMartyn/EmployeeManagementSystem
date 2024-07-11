@@ -1,14 +1,15 @@
 ﻿
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using System.Net;
 
 namespace BusinessLogicLayer.Exceptions
 {
     public class CustomException : Exception
     {
-        public HttpStatusCode StatusCode { get; private set; }
+        public int StatusCode { get; private set; }
 
-        public CustomException(string message, HttpStatusCode statusCode) : base(message)
+        public CustomException(string message, int statusCode) : base(message)
         {
             StatusCode = statusCode;
         }
