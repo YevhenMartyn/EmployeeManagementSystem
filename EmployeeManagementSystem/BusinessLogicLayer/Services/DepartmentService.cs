@@ -1,7 +1,10 @@
 ﻿using AutoMapper;
 using BusinessLogicLayer.Interface;
 using BusinessLogicLayer.Models;
+using BusinessLogicLayer.Validators;
 using DataAccessLayer.Interface;
+using FluentValidation;
+using FluentValidation.Results;
 
 namespace BusinessLogicLayer.Services
 {
@@ -10,11 +13,17 @@ namespace BusinessLogicLayer.Services
         private readonly IDepartmentRepository _repository;
         private readonly IMapper _mapper;
         private readonly IEmployeeRepository _employeeRepository;
-        public DepartmentService(IDepartmentRepository repository, IMapper mapper, IEmployeeRepository employeeRepository)
+        private readonly IValidator<DepartmentModel> _departmentValidator;
+        public DepartmentService(
+            IDepartmentRepository repository,
+            IMapper mapper,
+            IEmployeeRepository employeeRepository,
+            IValidator<DepartmentModel> departmentValidator)
         {
             _repository = repository;
             _mapper = mapper;
             _employeeRepository = employeeRepository;
+            _departmentValidator = departmentValidator;
         }
         public void Create(DepartmentModel department)
         {
@@ -48,6 +57,11 @@ namespace BusinessLogicLayer.Services
         public void Update(DepartmentModel department)
         {
             _repository.Update(_mapper.Map<DataAccessLayer.Entities.DepartmentEntity>(department));
+        }
+
+        private ValidationResult Validate(DepartmentModel department)
+        {
+            return _departmentValidator.Validate(department);
         }
     }
 }
