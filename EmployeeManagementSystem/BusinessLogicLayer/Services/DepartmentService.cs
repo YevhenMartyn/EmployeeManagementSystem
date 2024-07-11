@@ -32,12 +32,6 @@ namespace BusinessLogicLayer.Services
 
         public void Delete(int id)
         {
-            var employees = _employeeRepository.GetAll(e => e.DepartmentId == id);
-            foreach (var employee in employees)
-            {
-                employee.DepartmentId = -1;
-                _employeeRepository.Update(employee);
-            }
             _repository.Delete(id);
         }
 

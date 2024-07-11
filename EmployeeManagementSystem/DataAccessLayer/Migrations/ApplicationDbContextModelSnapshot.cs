@@ -42,11 +42,6 @@ namespace DataAccessLayer.Migrations
                     b.HasData(
                         new
                         {
-                            Id = -1,
-                            Name = "No Department"
-                        },
-                        new
-                        {
                             Id = 1,
                             Name = "d1"
                         },

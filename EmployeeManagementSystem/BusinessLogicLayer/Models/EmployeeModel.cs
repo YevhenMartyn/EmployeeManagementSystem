@@ -12,7 +12,7 @@ namespace BusinessLogicLayer.Models
         [Required]
         [MaxLength(30)]
         public string Position { get; set; }
-        public int? DepartmentId { get; set; } = -1;
+        public int? DepartmentId { get; set; }
         [Required]
         public DateTime StartDate { get; set; }
     }
