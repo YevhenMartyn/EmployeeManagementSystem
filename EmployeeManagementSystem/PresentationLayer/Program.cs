@@ -24,6 +24,14 @@ builder.Host.UseSerilog();
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+// Distributed SQL Server Cache
+builder.Services.AddDistributedSqlServerCache(options =>
+{
+    options.ConnectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+    options.SchemaName = "dbo";
+    options.TableName = "CacheTable";
+});
+
 //Mapping Profiles
 builder.Services.AddAutoMapper(typeof(BusinessMappingProfile));
 builder.Services.AddAutoMapper(typeof(PresentationMappingProfile));
@@ -35,8 +43,12 @@ builder.Services.AddScoped<IDepartmentService, DepartmentService>();
 builder.Services.AddScoped<IEmployeeService, EmployeeService>();
 
 // Add services to the container.
-builder.Services.AddControllers().AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<EmployeeValidator>());
-builder.Services.AddControllers().AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<DepartmentValidator>());
+builder.Services.AddControllers()
+    .AddFluentValidation(fv =>
+    {
+        fv.RegisterValidatorsFromAssemblyContaining<EmployeeValidator>();
+        fv.RegisterValidatorsFromAssemblyContaining<DepartmentValidator>();
+    });
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
