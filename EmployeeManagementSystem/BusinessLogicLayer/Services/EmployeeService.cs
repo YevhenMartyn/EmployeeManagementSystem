@@ -2,6 +2,8 @@
 using BusinessLogicLayer.Interface;
 using BusinessLogicLayer.Models;
 using DataAccessLayer.Interface;
+using FluentValidation;
+using FluentValidation.Results;
 
 namespace BusinessLogicLayer.Services
 {
@@ -9,10 +11,12 @@ namespace BusinessLogicLayer.Services
     {
         private readonly IEmployeeRepository _repository;
         private readonly IMapper _mapper;
-        public EmployeeService(IEmployeeRepository repository, IMapper mapper)
+        private readonly IValidator<EmployeeModel> _employeeValidator;
+        public EmployeeService(IEmployeeRepository repository, IMapper mapper, IValidator<EmployeeModel> employeeValidator)
         {
             _repository = repository;
             _mapper = mapper;
+            _employeeValidator = employeeValidator;
         }
         public void Create(EmployeeModel employee)
         {
@@ -39,6 +43,11 @@ namespace BusinessLogicLayer.Services
         public void Update(EmployeeModel employee)
         {
             _repository.Update(_mapper.Map<DataAccessLayer.Entities.EmployeeEntity>(employee));
+        }
+
+        private ValidationResult Validate(EmployeeModel employee)
+        {
+            return _employeeValidator.Validate(employee);
         }
     }
 }

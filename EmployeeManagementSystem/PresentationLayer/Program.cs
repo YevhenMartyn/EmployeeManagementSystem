@@ -8,6 +8,10 @@ using BusinessLogicLayer.Interface;
 using BusinessLogicLayer.Services;
 using PresentationLayer.Mapping;
 using BusinessLogicLayer.Mapping;
+using Microsoft.Extensions.Options;
+using PresentationLayer;
+using FluentValidation.AspNetCore;
+using BusinessLogicLayer.Validators;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -31,12 +35,21 @@ builder.Services.AddScoped<IDepartmentService, DepartmentService>();
 builder.Services.AddScoped<IEmployeeService, EmployeeService>();
 
 // Add services to the container.
-builder.Services.AddControllers();
+builder.Services.AddControllers().AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<EmployeeValidator>());
+builder.Services.AddControllers().AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<DepartmentValidator>());
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.Configure<AppSettings>(builder.Configuration.GetSection("AppSettings"));
+builder.Services.AddOptions<AppSettings>()
+    .Bind(builder.Configuration.GetSection("AppSettings"))
+    .ValidateDataAnnotations();
+
 var app = builder.Build();
+var options = app.Services.GetRequiredService<IOptions<AppSettings>>();
+var appSettings = options.Value;
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
