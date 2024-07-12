@@ -60,6 +60,8 @@ namespace DataAccessLayer.Repositories
 
         public async Task UpdateAsync(DepartmentEntity entity)
         {
+            _dbContext.Departments.Attach(entity);
+            _dbContext.Entry(entity).State = EntityState.Modified;
             _dbContext.Departments.Update(entity);
             await SaveChangesAsync();
             await InvalidateCacheAsync(entity.Id);

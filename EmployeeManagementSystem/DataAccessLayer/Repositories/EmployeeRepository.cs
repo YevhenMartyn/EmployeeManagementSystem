@@ -20,24 +20,6 @@ namespace DataAccessLayer.Repositories
             _cache = cache;
         }
 
-        public async Task CreateAsync(EmployeeEntity entity)
-        {
-            await _dbContext.Employees.AddAsync(entity);
-            await SaveChangesAsync();
-            await InvalidateCacheAsync(entity.Id);
-        }
-
-        public async Task DeleteAsync(int id)
-        {
-            var entity = await GetByIdAsync(id);
-            if (entity != null)
-            {
-                _dbContext.Employees.Remove(entity);
-                await SaveChangesAsync();
-                await InvalidateCacheAsync(id);
-            }
-        }
-
         public async Task<IList<EmployeeEntity>> GetAllAsync(Expression<Func<EmployeeEntity, bool>> filter = null)
         {
             string cacheKey = $"{cacheKeyPrefix}All";
@@ -76,6 +58,13 @@ namespace DataAccessLayer.Repositories
             return employee;
         }
 
+        public async Task CreateAsync(EmployeeEntity entity)
+        {
+            await _dbContext.Employees.AddAsync(entity);
+            await SaveChangesAsync();
+            await InvalidateCacheAsync(entity.Id);
+        }
+
         public async Task UpdateAsync(EmployeeEntity entity)
         {
             if (entity.DepartmentId != null && !await _dbContext.Departments.AnyAsync(d => d.Id == entity.DepartmentId))
@@ -83,9 +72,22 @@ namespace DataAccessLayer.Repositories
                 throw new Exception("Invalid DepartmentId");
             }
 
+            _dbContext.Employees.Attach(entity);
+            _dbContext.Entry(entity).State = EntityState.Modified;
             _dbContext.Employees.Update(entity);
             await SaveChangesAsync();
             await InvalidateCacheAsync(entity.Id);
+        }
+
+        public async Task DeleteAsync(int id)
+        {
+            var entity = await GetByIdAsync(id);
+            if (entity != null)
+            {
+                _dbContext.Employees.Remove(entity);
+                await SaveChangesAsync();
+                await InvalidateCacheAsync(id);
+            }
         }
 
         private async Task SaveChangesAsync()
