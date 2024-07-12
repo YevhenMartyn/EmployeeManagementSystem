@@ -2,6 +2,7 @@
 using BusinessLogicLayer.Interface;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Logging;
+using System.Text;
 using System.Text.Json;
 
 namespace BusinessLogicLayer.Services
@@ -42,6 +43,10 @@ namespace BusinessLogicLayer.Services
         {
             await _cache.RemoveAsync($"{_cacheKeyPrefix}{id}");
             await _cache.RemoveAsync($"{_cacheKeyPrefix}All");
+        }
+
+        public async Task<string> GetCacheKeyPrefixAsync() { 
+            return _cacheKeyPrefix;
         }
     }
 }

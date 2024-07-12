@@ -45,8 +45,8 @@ builder.Services.AddScoped<IGenericRepository<EmployeeEntity>, GenericRepository
 builder.Services.AddScoped<IGenericRepository<DepartmentEntity>, GenericRepository<DepartmentEntity>>();
 builder.Services.AddScoped<IDepartmentService, DepartmentService>();
 builder.Services.AddScoped<IEmployeeService, EmployeeService>();
-builder.Services.AddScoped<ICacheService<EmployeeModel>, CacheService<EmployeeModel>>();
-builder.Services.AddScoped<ICacheService<DepartmentModel>, CacheService<DepartmentModel>>();
+builder.Services.AddScoped<ICacheService<EmployeeEntity>, CacheService<EmployeeEntity>>();
+builder.Services.AddScoped<ICacheService<DepartmentEntity>, CacheService<DepartmentEntity>>();
 
 
 // Add services to the container.
