@@ -36,7 +36,7 @@ namespace BusinessLogicLayer.Services
 
         public async Task<IList<DepartmentModel>> GetAllAsync()
         {
-            string cacheKey = $"{_cacheService.GetCacheKeyPrefixAsync()}All";
+            string cacheKey = $"{_cacheService.GetCacheKeyPrefix()}All";
             IList<DepartmentEntity> departmentsEntity = await _cacheService.GetCacheAsync<IList<DepartmentEntity>>(cacheKey);
             if (departmentsEntity == null)
             {
@@ -49,7 +49,7 @@ namespace BusinessLogicLayer.Services
 
         public async Task<DepartmentModel> GetByIdAsync(int id)
         {
-            string cacheKey = $"{_cacheService.GetCacheKeyPrefixAsync()}{id}";
+            string cacheKey = $"{_cacheService.GetCacheKeyPrefix()}{id}";
 
             DepartmentEntity departmentEntity = await _cacheService.GetCacheAsync<DepartmentEntity>(cacheKey);
             if (departmentEntity == null)

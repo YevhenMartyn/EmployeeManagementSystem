@@ -45,8 +45,6 @@ namespace BusinessLogicLayer.Services
             await _cache.RemoveAsync($"{_cacheKeyPrefix}All");
         }
 
-        public async Task<string> GetCacheKeyPrefixAsync() { 
-            return _cacheKeyPrefix;
-        }
+        public string GetCacheKeyPrefix() => _cacheKeyPrefix;
     }
 }
