@@ -14,6 +14,7 @@ namespace PresentationLayer.Controllers
         private readonly ILogger<DepartmentController> _logger;
         private readonly IDepartmentService _departmentService;
         private readonly IMapper _mapper;
+
         public DepartmentController(
             ILogger<DepartmentController> logger,
             IDepartmentService departmentService,
@@ -27,9 +28,9 @@ namespace PresentationLayer.Controllers
         // GET all action
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public IActionResult GetAllDepartments()
+        public async Task<IActionResult> GetAllDepartments()
         {
-            var departments = _mapper.Map<IList<DepartmentDTO>>(_departmentService.GetAll());
+            var departments = _mapper.Map<IList<DepartmentDTO>>(await _departmentService.GetAllAsync());
             return Ok(departments);
         }
 
@@ -37,11 +38,11 @@ namespace PresentationLayer.Controllers
         [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public IActionResult GetDepartmentById(int id)
+        public async Task<IActionResult> GetDepartmentById(int id)
         {
             try
             {
-                var department = _mapper.Map<DepartmentDTO>(_departmentService.GetById(id));
+                var department = _mapper.Map<DepartmentDTO>(await _departmentService.GetByIdAsync(id));
                 return Ok(department);
             }
             catch (CustomException ex)
@@ -54,21 +55,14 @@ namespace PresentationLayer.Controllers
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public IActionResult AddDepartment(DepartmentDTO department)
+        public async Task<IActionResult> AddDepartment(DepartmentDTO department)
         {
-            //// Check for uniqueness
-            //if (_mapper.Map<IList<DepartmentDTO>>(_departmentService.GetAll()).FirstOrDefault(d => d.Name.ToLower() == department.Name.ToLower()) != null)
-            //{
-            //    _logger.LogError("Department with the same name already exists");
-            //    ModelState.AddModelError("AlreadyExistsError", "Such department already exists");
-            //    return BadRequest(ModelState);
-            //}
             try
             {
-                _departmentService.Create(_mapper.Map<DepartmentModel>(department));
+                await _departmentService.CreateAsync(_mapper.Map<DepartmentModel>(department));
                 return CreatedAtAction(nameof(GetDepartmentById), new { id = department.Id }, department);
             }
-            catch (CustomException ex) 
+            catch (CustomException ex)
             {
                 return StatusCode(ex.StatusCode, ex.Message);
             }
@@ -79,11 +73,11 @@ namespace PresentationLayer.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public IActionResult UpdateDepartment(int id, DepartmentDTO department)
+        public async Task<IActionResult> UpdateDepartment(int id, DepartmentDTO department)
         {
             try
             {
-                _departmentService.Update(id, _mapper.Map<DepartmentModel>(department));
+                await _departmentService.UpdateAsync(id, _mapper.Map<DepartmentModel>(department));
                 return Ok();
             }
             catch (CustomException ex)
@@ -96,11 +90,11 @@ namespace PresentationLayer.Controllers
         [HttpDelete("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public IActionResult DeleteDepartment(int id)
+        public async Task<IActionResult> DeleteDepartment(int id)
         {
             try
             {
-                _departmentService.Delete(id);
+                await _departmentService.DeleteAsync(id);
                 return Ok();
             }
             catch (CustomException ex)

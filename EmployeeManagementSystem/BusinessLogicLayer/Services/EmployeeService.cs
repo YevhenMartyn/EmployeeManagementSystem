@@ -2,11 +2,14 @@
 using BusinessLogicLayer.Exceptions;
 using BusinessLogicLayer.Interface;
 using BusinessLogicLayer.Models;
+using BusinessLogicLayer.Validators;
 using DataAccessLayer.Interface;
 using FluentValidation;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace BusinessLogicLayer.Services
 {
@@ -16,29 +19,28 @@ namespace BusinessLogicLayer.Services
         private readonly IMapper _mapper;
         private readonly IValidator<EmployeeModel> _employeeValidator;
         private readonly ILogger<EmployeeService> _logger;
-        private readonly IDepartmentService _departmentService;
-        public EmployeeService(IEmployeeRepository repository,
-                               IMapper mapper,
-                               IValidator<EmployeeModel> employeeValidator,
-                               ILogger<EmployeeService> logger,
-                               IDepartmentService departmentService)
+        public EmployeeService(
+            IEmployeeRepository repository,
+            IMapper mapper,
+            IValidator<EmployeeModel> employeeValidator,
+            ILogger<EmployeeService> logger)
         {
             _repository = repository;
             _mapper = mapper;
             _employeeValidator = employeeValidator;
             _logger = logger;
-            _departmentService = departmentService;
         }
 
-        public IList<EmployeeModel> GetAll()
+        public async Task<IList<EmployeeModel>> GetAllAsync()
         {
-            IList<EmployeeModel> employees = _mapper.Map<IList<EmployeeModel>>(_repository.GetAll());
+            _logger.LogInformation("Fetching all employees");
+            IList<EmployeeModel> employees = _mapper.Map<IList<EmployeeModel>>(await _repository.GetAllAsync());
             return employees;
         }
 
-        public IList<EmployeeModel> GetAll(int? departmentId, DateTime? fromDate, DateTime? toDate)
+        public async Task<IList<EmployeeModel>> GetAllAsync(int? departmentId, DateTime? fromDate, DateTime? toDate)
         {
-            IEnumerable<EmployeeModel> employees = _mapper.Map<IList<EmployeeModel>>(_repository.GetAll());
+            IEnumerable<EmployeeModel> employees = _mapper.Map<IList<EmployeeModel>>(await _repository.GetAllAsync());
 
             if (departmentId != null)
             {
@@ -58,9 +60,9 @@ namespace BusinessLogicLayer.Services
             return employees.ToList();
         }
 
-        public IList<EmployeeModel> GetAll(string? name, string? position, int? departmentId, DateTime? startDate)
+        public async Task<IList<EmployeeModel>> GetAllAsync(string? name, string? position, int? departmentId, DateTime? startDate)
         {
-            IList<EmployeeModel> employees = _mapper.Map<IList<EmployeeModel>>(_repository.GetAll());
+            IList<EmployeeModel> employees = _mapper.Map<IList<EmployeeModel>>(await _repository.GetAllAsync());
             if (!string.IsNullOrEmpty(name))
             {
                 employees = employees.Where(e => e.Name.Contains(name, StringComparison.OrdinalIgnoreCase)).ToList();
@@ -91,90 +93,61 @@ namespace BusinessLogicLayer.Services
             return employees;
         }
 
-        public EmployeeModel GetById(int id)
-        {
-            EmployeeModel employee = _mapper.Map<EmployeeModel>(_repository.GetById(id));
-            if (employee == null)
+            public async Task<EmployeeModel> GetByIdAsync(int id)
             {
-                CustomException ex = new CustomException($"Employee with ID {id} not found", StatusCodes.Status404NotFound);
-                _logger.LogWarning(ex.Message);
-                throw ex;
+                _logger.LogInformation($"Fetching employee with ID {id}");
+                EmployeeModel employee = _mapper.Map<EmployeeModel>(await _repository.GetByIdAsync(id));
+
+                if (employee == null)
+                {
+                    CustomException ex = new CustomException($"Employee with ID {id} not found", StatusCodes.Status404NotFound);
+                    _logger.LogWarning(ex.Message);
+                    throw ex;
+                }
+                return employee;
             }
 
-            return employee;
-        }
-
-        public void Create(EmployeeModel employee)
-        {
-            var validationResult = Validate(employee);
-            if (!validationResult.IsValid)
+            public async Task CreateAsync(EmployeeModel employee)
             {
-                CustomException ex = new CustomException($"Invalid model: {validationResult.ToString()}", StatusCodes.Status400BadRequest);
-                _logger.LogWarning(ex.Message);
-                throw ex;
-            }
-            CheckIfDepartmentExists((int)employee.DepartmentId);
-
-            _logger.LogInformation($"Employee with ID {employee.Id} added successfully");
-            _repository.Create(_mapper.Map<DataAccessLayer.Entities.EmployeeEntity>(employee));
-        }
-
-        public void Update(int id, EmployeeModel employee)
-        {
-            employee.Id = id;
-            var validationResult = Validate(employee);
-            if (!validationResult.IsValid)
-            {
-                CustomException ex = new CustomException($"Invalid model: {validationResult.ToString()}", StatusCodes.Status400BadRequest);
-                _logger.LogWarning(ex.Message);
-                throw ex;
-            }
-            if (employee.DepartmentId != null)
-            {
-                CheckIfDepartmentExists((int)employee.DepartmentId);
-            }
-            EmployeeModel existingEmployee = _mapper.Map<EmployeeModel>(_repository.GetById(id));
-
-            if (existingEmployee == null)
-            {
-                CustomException ex = new CustomException($"Employee with ID {id} not found", StatusCodes.Status404NotFound);
-                _logger.LogWarning(ex.Message);
-                throw ex;
+                var validationResult = await ValidateAsync(employee);
+                if (!validationResult.IsValid)
+                {
+                    CustomException ex = new CustomException($"Invalid model: {validationResult.ToString()}", StatusCodes.Status400BadRequest);
+                    _logger.LogError(ex.Message);
+                    throw ex;
+                }
+                _logger.LogInformation($"Employee with ID {employee.Id} added successfully");
+                await _repository.CreateAsync(_mapper.Map<DataAccessLayer.Entities.EmployeeEntity>(employee));
             }
 
-            _logger.LogInformation($"Employee with ID {id} updated successfully");
-            _repository.Update(_mapper.Map<DataAccessLayer.Entities.EmployeeEntity>(employee));
-        }
-
-        public void Delete(int id)
-        {
-            var employee = _mapper.Map<EmployeeModel>(_repository.GetById(id));
-
-            if (employee == null)
+            public async Task UpdateAsync(int id, EmployeeModel employee)
             {
-                CustomException ex = new CustomException($"Employee with ID {id} not found", StatusCodes.Status404NotFound);
-                _logger.LogWarning(ex.Message);
-                throw ex;
+                employee.Id = id;
+                var validationResult = await ValidateAsync(employee);
+                if (!validationResult.IsValid)
+                {
+                    CustomException ex = new CustomException($"Invalid model: {validationResult.ToString()}", StatusCodes.Status400BadRequest);
+                    _logger.LogError(ex.Message);
+                    throw ex;
+                }
+
+                var existingEmployee = await GetByIdAsync(id);
+                _logger.LogInformation($"Employee with ID {id} updated successfully");
+                await _repository.UpdateAsync(_mapper.Map<DataAccessLayer.Entities.EmployeeEntity>(employee));
             }
 
-            _logger.LogInformation($"Employee with ID {id} deleted successfully");
-            _repository.Delete(id);
-        }
-
-        private void CheckIfDepartmentExists(int id) {
-            try
+            public async Task DeleteAsync(int id)
             {
-                _departmentService.GetById(id);
+                var existingEmployee = await GetByIdAsync(id);
+                _logger.LogInformation($"Employee with ID {id} deleted successfully");
+                await _repository.DeleteAsync(id);
             }
-            catch (CustomException ex)
-            {
-                throw ex;
-            }
-        }
 
-        private ValidationResult Validate(EmployeeModel employee)
-        {
-            return _employeeValidator.Validate(employee);
+            private async Task<ValidationResult> ValidateAsync(EmployeeModel employee)
+            {
+                var validator = new EmployeeValidator();
+                var validationResult = await validator.ValidateAsync(employee);
+                return validationResult;
+            }
         }
     }
-}

@@ -4,10 +4,10 @@ namespace DataAccessLayer.Interface
 {
     public interface IDepartmentRepository
     {
-        IList<DepartmentEntity> GetAll();
-        DepartmentEntity GetById(int id);
-        void Create(DepartmentEntity department);
-        void Update(DepartmentEntity department);
-        void Delete(int id);
+        Task<IList<DepartmentEntity>> GetAllAsync();
+        Task<DepartmentEntity> GetByIdAsync(int id);
+        Task CreateAsync(DepartmentEntity department);
+        Task UpdateAsync(DepartmentEntity department);
+        Task DeleteAsync(int id);
     }
 }
