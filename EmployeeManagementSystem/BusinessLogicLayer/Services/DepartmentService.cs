@@ -3,42 +3,61 @@ using BusinessLogicLayer.Exceptions;
 using BusinessLogicLayer.Interface;
 using BusinessLogicLayer.Models;
 using BusinessLogicLayer.Validators;
+using DataAccessLayer.Entities;
 using DataAccessLayer.Interface;
 using FluentValidation;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Logging;
 
 namespace BusinessLogicLayer.Services
 {
     public class DepartmentService : IDepartmentService
     {
-        private readonly IDepartmentRepository _repository;
+        //private readonly IDepartmentRepository _repository;
+        private readonly IGenericRepository<DepartmentEntity> _repository;
         private readonly IMapper _mapper;
         private readonly IValidator<DepartmentModel> _departmentValidator;
         private readonly ILogger<DepartmentService> _logger;
-        public DepartmentService(IDepartmentRepository repository,
+        private readonly ICacheService<DepartmentEntity> _cacheService;
+        public DepartmentService(IGenericRepository<DepartmentEntity> repository,
                                  IMapper mapper,
                                  IValidator<DepartmentModel> departmentValidator,
-                                 ILogger<DepartmentService> logger)
+                                 ILogger<DepartmentService> logger,
+                                 ICacheService<DepartmentEntity> cacheService)
         {
             _logger = logger;
             _repository = repository;
             _mapper = mapper;
             _departmentValidator = departmentValidator;
+            _cacheService = cacheService;
         }
 
         public async Task<IList<DepartmentModel>> GetAllAsync()
         {
-            _logger.LogInformation("Fetching all departments");
-            IList<DepartmentModel> departments = _mapper.Map<IList<DepartmentModel>>(await _repository.GetAllAsync());
-            return departments;
+            string cacheKey = $"{_cacheService.GetCacheKeyPrefix()}All";
+            IList<DepartmentEntity> departmentsEntity = await _cacheService.GetCacheAsync<IList<DepartmentEntity>>(cacheKey);
+            if (departmentsEntity == null)
+            {
+                departmentsEntity = await _repository.GetAllAsync();
+            }
+
+            await _cacheService.SetCacheAsync(cacheKey, departmentsEntity);
+            return _mapper.Map<IList<DepartmentModel>>(departmentsEntity);
         }
 
         public async Task<DepartmentModel> GetByIdAsync(int id)
         {
-            _logger.LogInformation($"Fetching department with ID {id}");
-            DepartmentModel department = _mapper.Map<DepartmentModel>(await _repository.GetByIdAsync(id));
+            string cacheKey = $"{_cacheService.GetCacheKeyPrefix()}{id}";
+
+            DepartmentEntity departmentEntity = await _cacheService.GetCacheAsync<DepartmentEntity>(cacheKey);
+            if (departmentEntity == null)
+            {  
+                departmentEntity = await _repository.GetByIdAsync(id); 
+            }
+
+            DepartmentModel department = _mapper.Map<DepartmentModel>(departmentEntity);
 
             if (department == null)
             {
@@ -60,7 +79,9 @@ namespace BusinessLogicLayer.Services
                 throw ex;
             }
             _logger.LogInformation($"Department with ID {department.Id} added successfully");
-            await _repository.CreateAsync(_mapper.Map<DataAccessLayer.Entities.DepartmentEntity>(department));
+            DepartmentEntity departmentEntity = _mapper.Map<DepartmentEntity>(department);
+            await _cacheService.InvalidateCacheAsync(departmentEntity.Id);
+            await _repository.CreateAsync(departmentEntity);
         }
 
         public async Task UpdateAsync(int id, DepartmentModel department)
@@ -76,13 +97,17 @@ namespace BusinessLogicLayer.Services
 
             var existingDepartment = await GetByIdAsync(id);
             _logger.LogInformation($"Department with ID {id} updated successfully");
-            await _repository.UpdateAsync(_mapper.Map<DataAccessLayer.Entities.DepartmentEntity>(department));
+
+            DepartmentEntity departmentEntity = _mapper.Map<DepartmentEntity>(department);
+            await _cacheService.InvalidateCacheAsync(id);
+            await _repository.UpdateAsync(departmentEntity);
         }
 
         public async Task DeleteAsync(int id)
         {
             var existingDepartment = await GetByIdAsync(id);
             _logger.LogInformation($"Department with ID {id} deleted successfully");
+            await _cacheService.InvalidateCacheAsync(id);
             await _repository.DeleteAsync(id);
         }
 

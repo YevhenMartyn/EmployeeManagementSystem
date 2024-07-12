@@ -12,6 +12,8 @@ using Microsoft.Extensions.Options;
 using PresentationLayer;
 using FluentValidation.AspNetCore;
 using BusinessLogicLayer.Validators;
+using BusinessLogicLayer.Models;
+using DataAccessLayer.Entities;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -37,10 +39,15 @@ builder.Services.AddAutoMapper(typeof(BusinessMappingProfile));
 builder.Services.AddAutoMapper(typeof(PresentationMappingProfile));
 
 //DI
-builder.Services.AddScoped<IDepartmentRepository, DepartmentRepository>();
-builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
+//builder.Services.AddScoped<IDepartmentRepository, DepartmentRepository>();
+//builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
+builder.Services.AddScoped<IGenericRepository<EmployeeEntity>, GenericRepository<EmployeeEntity>>();
+builder.Services.AddScoped<IGenericRepository<DepartmentEntity>, GenericRepository<DepartmentEntity>>();
 builder.Services.AddScoped<IDepartmentService, DepartmentService>();
 builder.Services.AddScoped<IEmployeeService, EmployeeService>();
+builder.Services.AddScoped<ICacheService<EmployeeEntity>, CacheService<EmployeeEntity>>();
+builder.Services.AddScoped<ICacheService<DepartmentEntity>, CacheService<DepartmentEntity>>();
+
 
 // Add services to the container.
 builder.Services.AddControllers()

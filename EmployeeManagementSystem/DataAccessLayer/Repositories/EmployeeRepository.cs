@@ -27,7 +27,7 @@ namespace DataAccessLayer.Repositories
 
             if (employees == null)
             {
-                IQueryable<EmployeeEntity> query = _dbContext.Employees.AsNoTracking();
+                IQueryable<EmployeeEntity> query = _dbContext.Employees;
 
                 if (filter != null)
                 {
