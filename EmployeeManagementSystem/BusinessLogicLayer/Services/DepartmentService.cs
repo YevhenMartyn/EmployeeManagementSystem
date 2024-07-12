@@ -61,7 +61,7 @@ namespace BusinessLogicLayer.Services
 
             if (department == null)
             {
-                CustomException ex = new CustomException($"Department with ID {id} not found", StatusCodes.Status404NotFound);
+                CustomException ex = new CustomException($"Department with ID {id} not found", 404);
                 _logger.LogWarning(ex.Message);
                 throw ex;
             }
@@ -74,7 +74,7 @@ namespace BusinessLogicLayer.Services
             var validationResult = Validate(department);
             if (!validationResult.IsValid)
             {
-                CustomException ex = new CustomException($"Invalid model: {validationResult.ToString()}", StatusCodes.Status400BadRequest);
+                CustomException ex = new CustomException($"Invalid model: {validationResult.ToString()}", 400);
                 _logger.LogError(ex.Message);
                 throw ex;
             }
@@ -90,7 +90,7 @@ namespace BusinessLogicLayer.Services
             var validationResult = Validate(department);
             if (!validationResult.IsValid)
             {
-                CustomException ex = new CustomException($"Invalid model: {validationResult.ToString()}", StatusCodes.Status400BadRequest);
+                CustomException ex = new CustomException($"Invalid model: {validationResult.ToString()}", 400);
                 _logger.LogError(ex.Message);
                 throw ex;
             }
@@ -113,8 +113,7 @@ namespace BusinessLogicLayer.Services
 
         private ValidationResult Validate(DepartmentModel department)
         {
-            var validator = new DepartmentValidator();
-            var validationResult = validator.Validate(department);
+            var validationResult = _departmentValidator.Validate(department);
             return validationResult;
         }
     }

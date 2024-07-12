@@ -109,7 +109,7 @@ namespace BusinessLogicLayer.Services
 
             if (employees.Count == 0)
             {
-                CustomException ex = new CustomException("No employee found", StatusCodes.Status404NotFound);
+                CustomException ex = new CustomException("No employee found", 404);
                 _logger.LogWarning(ex.Message);
                 throw ex;
             }
@@ -131,7 +131,7 @@ namespace BusinessLogicLayer.Services
 
             if (employee == null)
             {
-                CustomException ex = new CustomException($"Employee with ID {id} not found", StatusCodes.Status404NotFound);
+                CustomException ex = new CustomException($"Employee with ID {id} not found", 404);
                 _logger.LogWarning(ex.Message);
                 throw ex;
             }
@@ -143,7 +143,7 @@ namespace BusinessLogicLayer.Services
             var validationResult = await ValidateAsync(employee);
             if (!validationResult.IsValid)
             {
-                CustomException ex = new CustomException($"Invalid model: {validationResult.ToString()}", StatusCodes.Status400BadRequest);
+                CustomException ex = new CustomException($"Invalid model: {validationResult.ToString()}", 400);
                 _logger.LogError(ex.Message);
                 throw ex;
             }
@@ -160,7 +160,7 @@ namespace BusinessLogicLayer.Services
             var validationResult = await ValidateAsync(employee);
             if (!validationResult.IsValid)
             {
-                CustomException ex = new CustomException($"Invalid model: {validationResult.ToString()}", StatusCodes.Status400BadRequest);
+                CustomException ex = new CustomException($"Invalid model: {validationResult.ToString()}", 400);
                 _logger.LogError(ex.Message);
                 throw ex;
             }
@@ -182,8 +182,7 @@ namespace BusinessLogicLayer.Services
 
         private async Task<ValidationResult> ValidateAsync(EmployeeModel employee)
         {
-            var validator = new EmployeeValidator();
-            var validationResult = await validator.ValidateAsync(employee);
+            var validationResult = await _employeeValidator.ValidateAsync(employee);
             return validationResult;
         }
     }

@@ -16,7 +16,7 @@ namespace BusinessLogicLayer.Services
         {
             _cache = cache;
             _logger = logger;
-            _cacheKeyPrefix = $"{typeof(T).Name}_";
+            _cacheKeyPrefix = $"{nameof(T)}_";
         }
 
         public async Task<T> GetCacheAsync<T>(string cacheKey)
