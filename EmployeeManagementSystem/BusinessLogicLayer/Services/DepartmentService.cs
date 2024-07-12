@@ -41,9 +41,9 @@ namespace BusinessLogicLayer.Services
             if (departmentsEntity == null)
             {
                 departmentsEntity = await _repository.GetAllAsync();
+                await _cacheService.SetCacheAsync(cacheKey, departmentsEntity);
             }
 
-            await _cacheService.SetCacheAsync(cacheKey, departmentsEntity);
             return _mapper.Map<IList<DepartmentModel>>(departmentsEntity);
         }
 
@@ -55,6 +55,7 @@ namespace BusinessLogicLayer.Services
             if (departmentEntity == null)
             {  
                 departmentEntity = await _repository.GetByIdAsync(id); 
+                await _cacheService.SetCacheAsync(cacheKey, departmentEntity);
             }
 
             DepartmentModel department = _mapper.Map<DepartmentModel>(departmentEntity);

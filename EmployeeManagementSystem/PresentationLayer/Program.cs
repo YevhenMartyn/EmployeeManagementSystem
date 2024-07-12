@@ -14,6 +14,7 @@ using FluentValidation.AspNetCore;
 using BusinessLogicLayer.Validators;
 using BusinessLogicLayer.Models;
 using DataAccessLayer.Entities;
+using FluentValidation;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -49,6 +50,7 @@ builder.Services.AddScoped<ICacheService<EmployeeEntity>, CacheService<EmployeeE
 builder.Services.AddScoped<ICacheService<DepartmentEntity>, CacheService<DepartmentEntity>>();
 
 
+
 // Add services to the container.
 builder.Services.AddControllers()
     .AddFluentValidation(fv =>
@@ -56,6 +58,13 @@ builder.Services.AddControllers()
         fv.RegisterValidatorsFromAssemblyContaining<EmployeeValidator>();
         fv.RegisterValidatorsFromAssemblyContaining<DepartmentValidator>();
     });
+
+
+
+//builder.Services.AddFluentValidationAutoValidation();
+//builder.Services.AddFluentValidationClientsideAdapters();
+//builder.Services.AddValidatorsFromAssemblyContaining<EmployeeValidator>();
+//builder.Services.AddValidatorsFromAssemblyContaining<DepartmentValidator>();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();

@@ -43,9 +43,9 @@ namespace BusinessLogicLayer.Services
             if (employeesEntity == null)
             {
                 employeesEntity = await _repository.GetAllAsync();
+                await _cacheService.SetCacheAsync(cacheKey, employeesEntity);
             }
             IList<EmployeeModel> employees = _mapper.Map<IList<EmployeeModel>>(employeesEntity);
-            await _cacheService.SetCacheAsync(cacheKey, employeesEntity);
             return employees;
         }
 
@@ -56,7 +56,9 @@ namespace BusinessLogicLayer.Services
             if (employeesEntity == null)
             {
                 employeesEntity = await _repository.GetAllAsync();
+                await _cacheService.SetCacheAsync(cacheKey, employeesEntity);
             }
+
             IEnumerable<EmployeeModel> employees = _mapper.Map<IEnumerable<EmployeeModel>>(employeesEntity);
 
             if (departmentId != null)
@@ -84,7 +86,9 @@ namespace BusinessLogicLayer.Services
             if (employeesEntity == null)
             {
                 employeesEntity = await _repository.GetAllAsync();
+                await _cacheService.SetCacheAsync(cacheKey, employeesEntity);
             }
+
             IList<EmployeeModel> employees = _mapper.Map<IList<EmployeeModel>>(employeesEntity);
 
             if (!string.IsNullOrEmpty(name))
@@ -125,6 +129,7 @@ namespace BusinessLogicLayer.Services
             if (employeeEntity == null)
             {
                 employeeEntity = await _repository.GetByIdAsync(id);
+                await _cacheService.SetCacheAsync(cacheKey, employeeEntity);
             }
 
             EmployeeModel employee = _mapper.Map<EmployeeModel>(employeeEntity);

@@ -13,7 +13,7 @@ namespace BusinessLogicLayer.Services
         public CacheService(IDistributedCache cache)
         {
             _cache = cache;
-            _cacheKeyPrefix = $"{nameof(T)}_";
+            _cacheKeyPrefix = $"{typeof(T).Name}_";
         }
 
         public async Task<T> GetCacheAsync<T>(string cacheKey)
@@ -31,7 +31,7 @@ namespace BusinessLogicLayer.Services
         {
             var options = new DistributedCacheEntryOptions
             {
-                AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(2) // Cache expiration time
+                AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5) // Cache expiration time
             };
             await _cache.SetStringAsync(cacheKey, JsonSerializer.Serialize(data), options);
         }
