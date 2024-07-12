@@ -12,15 +12,12 @@ namespace PresentationLayer.Controllers
     [ApiController]
     public class EmployeeController : ControllerBase
     {
-        private readonly ILogger<EmployeeController> _logger;
         private readonly IEmployeeService _employeeService;
         private readonly IMapper _mapper;
 
-        public EmployeeController(ILogger<EmployeeController> logger,
-                                  IEmployeeService employeeService,
+        public EmployeeController(IEmployeeService employeeService,
                                   IMapper mapper)
         {
-            _logger = logger;
             _employeeService = employeeService;
             _mapper = mapper;
         }

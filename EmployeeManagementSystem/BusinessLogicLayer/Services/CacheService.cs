@@ -1,5 +1,4 @@
-﻿
-using BusinessLogicLayer.Interface;
+﻿using BusinessLogicLayer.Interface;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Logging;
 using System.Text;
@@ -10,12 +9,10 @@ namespace BusinessLogicLayer.Services
     public class CacheService<T> : ICacheService<T> where T : class
     {
         private readonly IDistributedCache _cache;
-        private readonly ILogger<CacheService<T>> _logger;
         private readonly string _cacheKeyPrefix;
-        public CacheService(IDistributedCache cache, ILogger<CacheService<T>> logger)
+        public CacheService(IDistributedCache cache)
         {
             _cache = cache;
-            _logger = logger;
             _cacheKeyPrefix = $"{nameof(T)}_";
         }
 

@@ -11,15 +11,13 @@ namespace PresentationLayer.Controllers
     [ApiController]
     public class DepartmentController : ControllerBase
     {
-        private readonly ILogger<DepartmentController> _logger;
         private readonly IDepartmentService _departmentService;
         private readonly IMapper _mapper;
 
-        public DepartmentController(ILogger<DepartmentController> logger,
+        public DepartmentController(
                                     IDepartmentService departmentService,
                                     IMapper mapper)
         {
-            _logger = logger;
             _departmentService = departmentService;
             _mapper = mapper;
         }
