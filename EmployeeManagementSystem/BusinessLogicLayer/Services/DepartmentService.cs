@@ -3,6 +3,7 @@ using BusinessLogicLayer.Exceptions;
 using BusinessLogicLayer.Interface;
 using BusinessLogicLayer.Models;
 using BusinessLogicLayer.Validators;
+using DataAccessLayer.Entities;
 using DataAccessLayer.Interface;
 using FluentValidation;
 using FluentValidation.Results;
@@ -13,11 +14,12 @@ namespace BusinessLogicLayer.Services
 {
     public class DepartmentService : IDepartmentService
     {
-        private readonly IDepartmentRepository _repository;
+        //private readonly IDepartmentRepository _repository;
+        private readonly IGenericRepository<DepartmentEntity> _repository;
         private readonly IMapper _mapper;
         private readonly IValidator<DepartmentModel> _departmentValidator;
         private readonly ILogger<DepartmentService> _logger;
-        public DepartmentService(IDepartmentRepository repository,
+        public DepartmentService(IGenericRepository<DepartmentEntity> repository,
                                  IMapper mapper,
                                  IValidator<DepartmentModel> departmentValidator,
                                  ILogger<DepartmentService> logger)

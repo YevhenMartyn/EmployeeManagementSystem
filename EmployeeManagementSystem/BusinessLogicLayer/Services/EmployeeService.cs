@@ -3,6 +3,7 @@ using BusinessLogicLayer.Exceptions;
 using BusinessLogicLayer.Interface;
 using BusinessLogicLayer.Models;
 using BusinessLogicLayer.Validators;
+using DataAccessLayer.Entities;
 using DataAccessLayer.Interface;
 using FluentValidation;
 using FluentValidation.Results;
@@ -15,11 +16,12 @@ namespace BusinessLogicLayer.Services
 {
     public class EmployeeService : IEmployeeService
     {
-        private readonly IEmployeeRepository _repository;
+        //private readonly IEmployeeRepository _repository;
+        private readonly IGenericRepository<EmployeeEntity> _repository;
         private readonly IMapper _mapper;
         private readonly IValidator<EmployeeModel> _employeeValidator;
         private readonly ILogger<EmployeeService> _logger;
-        public EmployeeService(IEmployeeRepository repository,
+        public EmployeeService(IGenericRepository<EmployeeEntity> repository,
                                IMapper mapper,
                                IValidator<EmployeeModel> employeeValidator,
                                ILogger<EmployeeService> logger)
