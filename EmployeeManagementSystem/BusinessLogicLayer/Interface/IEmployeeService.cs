@@ -11,6 +11,5 @@ namespace BusinessLogicLayer.Interface
         Task CreateAsync(EmployeeModel employee);
         Task UpdateAsync(int id, EmployeeModel employee);
         Task DeleteAsync(int id);
-
     }
 }

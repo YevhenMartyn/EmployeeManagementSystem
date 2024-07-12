@@ -19,11 +19,10 @@ namespace BusinessLogicLayer.Services
         private readonly IMapper _mapper;
         private readonly IValidator<EmployeeModel> _employeeValidator;
         private readonly ILogger<EmployeeService> _logger;
-        public EmployeeService(
-            IEmployeeRepository repository,
-            IMapper mapper,
-            IValidator<EmployeeModel> employeeValidator,
-            ILogger<EmployeeService> logger)
+        public EmployeeService(IEmployeeRepository repository,
+                               IMapper mapper,
+                               IValidator<EmployeeModel> employeeValidator,
+                               ILogger<EmployeeService> logger)
         {
             _repository = repository;
             _mapper = mapper;

@@ -15,10 +15,9 @@ namespace PresentationLayer.Controllers
         private readonly IDepartmentService _departmentService;
         private readonly IMapper _mapper;
 
-        public DepartmentController(
-            ILogger<DepartmentController> logger,
-            IDepartmentService departmentService,
-            IMapper mapper)
+        public DepartmentController(ILogger<DepartmentController> logger,
+                                    IDepartmentService departmentService,
+                                    IMapper mapper)
         {
             _logger = logger;
             _departmentService = departmentService;

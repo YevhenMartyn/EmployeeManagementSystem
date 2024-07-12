@@ -26,7 +26,7 @@ namespace DataAccessLayer.Entities.Configurations
                     Id = 2,
                     Name = "d2"
                 }
-                );
+            );
         }
     }
 }

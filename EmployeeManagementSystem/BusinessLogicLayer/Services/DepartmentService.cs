@@ -17,11 +17,10 @@ namespace BusinessLogicLayer.Services
         private readonly IMapper _mapper;
         private readonly IValidator<DepartmentModel> _departmentValidator;
         private readonly ILogger<DepartmentService> _logger;
-        public DepartmentService(
-            IDepartmentRepository repository,
-            IMapper mapper,
-            IValidator<DepartmentModel> departmentValidator,
-            ILogger<DepartmentService> logger)
+        public DepartmentService(IDepartmentRepository repository,
+                                 IMapper mapper,
+                                 IValidator<DepartmentModel> departmentValidator,
+                                 ILogger<DepartmentService> logger)
         {
             _logger = logger;
             _repository = repository;

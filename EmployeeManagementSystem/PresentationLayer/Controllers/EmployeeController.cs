@@ -16,7 +16,9 @@ namespace PresentationLayer.Controllers
         private readonly IEmployeeService _employeeService;
         private readonly IMapper _mapper;
 
-        public EmployeeController(ILogger<EmployeeController> logger, IEmployeeService employeeService, IMapper mapper)
+        public EmployeeController(ILogger<EmployeeController> logger,
+                                  IEmployeeService employeeService,
+                                  IMapper mapper)
         {
             _logger = logger;
             _employeeService = employeeService;

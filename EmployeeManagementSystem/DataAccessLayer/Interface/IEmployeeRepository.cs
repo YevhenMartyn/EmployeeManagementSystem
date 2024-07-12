@@ -10,6 +10,5 @@ namespace DataAccessLayer.Interface
         Task CreateAsync(EmployeeEntity employee);
         Task UpdateAsync(EmployeeEntity employee);
         Task DeleteAsync(int id);
-
     }
 }
