@@ -4,10 +4,10 @@ namespace BusinessLogicLayer.Interface
 {
     public interface IDepartmentService
     {
-        IList<DepartmentModel> GetAll();
-        DepartmentModel GetById(int id);
-        void Create(DepartmentModel department);
-        void Update(DepartmentModel department);
-        void Delete(int id);
+        Task<IList<DepartmentModel>> GetAllAsync();
+        Task<DepartmentModel> GetByIdAsync(int id);
+        Task CreateAsync(DepartmentModel department);
+        Task UpdateAsync(int id, DepartmentModel department);
+        Task DeleteAsync(int id);
     }
 }

@@ -5,11 +5,10 @@ namespace DataAccessLayer.Interface
 {
     public interface IEmployeeRepository
     {
-        IList<EmployeeEntity> GetAll(Expression<Func<EmployeeEntity, bool>> filter = null);
-        EmployeeEntity GetById(int id);
-        void Create(EmployeeEntity employee);
-        void Update(EmployeeEntity employee);
-        void Delete(int id);
-
+        Task<IList<EmployeeEntity>> GetAllAsync(Expression<Func<EmployeeEntity, bool>> filter = null);
+        Task<EmployeeEntity> GetByIdAsync(int id);
+        Task CreateAsync(EmployeeEntity employee);
+        Task UpdateAsync(EmployeeEntity employee);
+        Task DeleteAsync(int id);
     }
 }

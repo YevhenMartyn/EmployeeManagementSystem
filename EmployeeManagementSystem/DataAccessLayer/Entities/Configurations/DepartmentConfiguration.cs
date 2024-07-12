@@ -18,11 +18,6 @@ namespace DataAccessLayer.Entities.Configurations
             builder.HasData(
                 new DepartmentEntity()
                 {
-                    Id = -1,
-                    Name = "No Department"
-                },
-                new DepartmentEntity()
-                {
                     Id = 1,
                     Name = "d1"
                 },
@@ -31,7 +26,7 @@ namespace DataAccessLayer.Entities.Configurations
                     Id = 2,
                     Name = "d2"
                 }
-                );
+            );
         }
     }
 }

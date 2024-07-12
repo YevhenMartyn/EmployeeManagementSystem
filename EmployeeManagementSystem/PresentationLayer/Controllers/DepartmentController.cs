@@ -3,6 +3,7 @@ using BusinessLogicLayer.Interface;
 using PresentationLayer.Models;
 using AutoMapper;
 using BusinessLogicLayer.Models;
+using BusinessLogicLayer.Exceptions;
 
 namespace PresentationLayer.Controllers
 {
@@ -13,10 +14,10 @@ namespace PresentationLayer.Controllers
         private readonly ILogger<DepartmentController> _logger;
         private readonly IDepartmentService _departmentService;
         private readonly IMapper _mapper;
-        public DepartmentController(
-            ILogger<DepartmentController> logger,
-            IDepartmentService departmentService,
-            IMapper mapper)
+
+        public DepartmentController(ILogger<DepartmentController> logger,
+                                    IDepartmentService departmentService,
+                                    IMapper mapper)
         {
             _logger = logger;
             _departmentService = departmentService;
@@ -26,10 +27,9 @@ namespace PresentationLayer.Controllers
         // GET all action
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public IActionResult GetAllDepartments()
+        public async Task<IActionResult> GetAllDepartments()
         {
-            _logger.LogInformation("Fetching all departments");
-            var departments = _mapper.Map<IList<DepartmentDTO>>(_departmentService.GetAll());
+            var departments = _mapper.Map<IList<DepartmentDTO>>(await _departmentService.GetAllAsync());
             return Ok(departments);
         }
 
@@ -37,44 +37,34 @@ namespace PresentationLayer.Controllers
         [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public IActionResult GetDepartmentById(int id)
+        public async Task<IActionResult> GetDepartmentById(int id)
         {
-            _logger.LogInformation($"Fetching department with ID {id}");
-            var department = _mapper.Map<DepartmentDTO>(_departmentService.GetById(id));
-
-            if (department == null)
+            try
             {
-                _logger.LogError($"Department with ID {id} not found");
-                return NotFound();
+                var department = _mapper.Map<DepartmentDTO>(await _departmentService.GetByIdAsync(id));
+                return Ok(department);
             }
-
-            return Ok(department);
+            catch (CustomException ex)
+            {
+                return StatusCode(ex.StatusCode, ex.Message);
+            }
         }
 
         // POST action
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public IActionResult AddDepartment(DepartmentDTO department)
+        public async Task<IActionResult> AddDepartment(DepartmentDTO department)
         {
-            if (!ModelState.IsValid)
+            try
             {
-                _logger.LogError("Invalid model state for the department");
-                return BadRequest(ModelState);
+                await _departmentService.CreateAsync(_mapper.Map<DepartmentModel>(department));
+                return CreatedAtAction(nameof(GetDepartmentById), new { id = department.Id }, department);
             }
-
-            // Check for uniqueness
-            if (_mapper.Map<IList<DepartmentDTO>>(_departmentService.GetAll()).FirstOrDefault(d => d.Name.ToLower() == department.Name.ToLower()) != null)
+            catch (CustomException ex)
             {
-                _logger.LogError("Department with the same name already exists");
-                ModelState.AddModelError("AlreadyExistsError", "Such department already exists");
-                return BadRequest(ModelState);
+                return StatusCode(ex.StatusCode, ex.Message);
             }
-
-            _logger.LogInformation("Adding a new department");
-            _departmentService.Create(_mapper.Map<DepartmentModel>(department));
-            _logger.LogInformation($"Department with ID {department.Id} added successfully");
-            return CreatedAtAction(nameof(GetDepartmentById), new { id = department.Id }, department);
         }
 
         // PUT action
@@ -82,53 +72,34 @@ namespace PresentationLayer.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public IActionResult UpdateDepartment(int id, DepartmentDTO department)
+        public async Task<IActionResult> UpdateDepartment(int id, DepartmentDTO department)
         {
-            if (!ModelState.IsValid)
+            try
             {
-                _logger.LogError("Invalid model state for the department");
-                return BadRequest(ModelState);
+                await _departmentService.UpdateAsync(id, _mapper.Map<DepartmentModel>(department));
+                return Ok();
             }
-
-            if (id != department.Id)
+            catch (CustomException ex)
             {
-                _logger.LogError("Given ID does not match the department ID");
-                return BadRequest();
+                return StatusCode(ex.StatusCode, ex.Message);
             }
-
-            _logger.LogInformation($"Updating department with ID {id}");
-            DepartmentDTO existingDepartment = _mapper.Map<DepartmentDTO>(_departmentService.GetById(id));
-            if (existingDepartment == null)
-            {
-                _logger.LogError($"Department with ID {id} not found");
-                return NotFound();
-            }
-
-            _departmentService.Update(_mapper.Map<DepartmentModel>(department));
-            _logger.LogInformation($"Department with ID {id} updated successfully");
-
-            return Ok();
         }
 
         // DELETE action
         [HttpDelete("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public IActionResult DeleteDepartment(int id)
+        public async Task<IActionResult> DeleteDepartment(int id)
         {
-            _logger.LogInformation($"Deleting department with ID {id}");
-            var department = _mapper.Map<DepartmentDTO>(_departmentService.GetById(id));
-
-            if (department == null)
+            try
             {
-                _logger.LogError($"Department with ID {id} not found");
-                return NotFound();
+                await _departmentService.DeleteAsync(id);
+                return Ok();
             }
-
-            _departmentService.Delete(id);
-            _logger.LogInformation($"Department with ID {id} deleted successfully");
-
-            return Ok();
+            catch (CustomException ex)
+            {
+                return StatusCode(ex.StatusCode, ex.Message);
+            }
         }
     }
 }

@@ -20,24 +20,10 @@ namespace DataAccessLayer.Repositories
             _cache = cache;
         }
 
-        public void Create(EmployeeEntity entity)
-        {
-            _dbContext.Employees.Add(entity);
-            SaveChanges();
-            InvalidateCache(entity.Id);
-        }
-
-        public void Delete(int id)
-        {
-            _dbContext.Employees.Remove(GetById(id));
-            SaveChanges();
-            InvalidateCache(id);
-        }
-
-        public IList<EmployeeEntity> GetAll(Expression<Func<EmployeeEntity, bool>> filter = null)
+        public async Task<IList<EmployeeEntity>> GetAllAsync(Expression<Func<EmployeeEntity, bool>> filter = null)
         {
             string cacheKey = $"{cacheKeyPrefix}All";
-            IList<EmployeeEntity> employees = GetCache<List<EmployeeEntity>>(cacheKey);
+            IList<EmployeeEntity> employees = await GetCacheAsync<List<EmployeeEntity>>(cacheKey);
 
             if (employees == null)
             {
@@ -48,56 +34,76 @@ namespace DataAccessLayer.Repositories
                     query = query.Where(filter);
                 }
 
-                employees = query.ToList();
-                SetCache(cacheKey, employees);
+                employees = await query.ToListAsync();
+                await SetCacheAsync(cacheKey, employees);
             }
 
             return employees;
         }
 
-        public EmployeeEntity GetById(int id)
+        public async Task<EmployeeEntity> GetByIdAsync(int id)
         {
             string cacheKey = $"{cacheKeyPrefix}{id}";
-            EmployeeEntity employee = GetCache<EmployeeEntity>(cacheKey);
+            EmployeeEntity employee = await GetCacheAsync<EmployeeEntity>(cacheKey);
 
             if (employee == null)
             {
-                employee = _dbContext.Employees.AsNoTracking().FirstOrDefault(e => e.Id == id);
+                employee = await _dbContext.Employees.AsNoTracking().FirstOrDefaultAsync(e => e.Id == id);
                 if (employee != null)
                 {
-                    SetCache(cacheKey, employee);
+                    await SetCacheAsync(cacheKey, employee);
                 }
             }
 
             return employee;
         }
 
-        public void Update(EmployeeEntity entity)
+        public async Task CreateAsync(EmployeeEntity entity)
         {
-            if (entity.DepartmentId != null && !_dbContext.Departments.Any(d => d.Id == entity.DepartmentId))
+            await _dbContext.Employees.AddAsync(entity);
+            await SaveChangesAsync();
+            await InvalidateCacheAsync(entity.Id);
+        }
+
+        public async Task UpdateAsync(EmployeeEntity entity)
+        {
+            if (entity.DepartmentId != null && !await _dbContext.Departments.AnyAsync(d => d.Id == entity.DepartmentId))
             {
                 throw new Exception("Invalid DepartmentId");
             }
 
+            _dbContext.Employees.Attach(entity);
+            _dbContext.Entry(entity).State = EntityState.Modified;
             _dbContext.Employees.Update(entity);
-            SaveChanges();
-            InvalidateCache(entity.Id);
+            await SaveChangesAsync();
+            await InvalidateCacheAsync(entity.Id);
         }
 
-        private void SaveChanges()
+        public async Task DeleteAsync(int id)
         {
-            _dbContext.SaveChanges();
+            var entity = await GetByIdAsync(id);
+            if (entity != null)
+            {
+                _dbContext.Employees.Remove(entity);
+                await SaveChangesAsync();
+                await InvalidateCacheAsync(id);
+            }
         }
 
-        private void InvalidateCache(int id)
+        private async Task SaveChangesAsync()
         {
-            _cache.Remove($"{cacheKeyPrefix}{id}");
-            _cache.Remove($"{cacheKeyPrefix}All");
+            await _dbContext.SaveChangesAsync();
         }
 
-        private T GetCache<T>(string cacheKey)
+        private async Task InvalidateCacheAsync(int id)
         {
-            var cachedData = _cache.GetString(cacheKey);
+            await _cache.RemoveAsync($"{cacheKeyPrefix}{id}");
+            await _cache.RemoveAsync($"{cacheKeyPrefix}All");
+        }
+
+        private async Task<T> GetCacheAsync<T>(string cacheKey)
+        {
+            var cachedData = await _cache.GetStringAsync(cacheKey);
             if (string.IsNullOrEmpty(cachedData))
             {
                 return default;
@@ -106,13 +112,13 @@ namespace DataAccessLayer.Repositories
             return JsonSerializer.Deserialize<T>(cachedData);
         }
 
-        private void SetCache<T>(string cacheKey, T data)
+        private async Task SetCacheAsync<T>(string cacheKey, T data)
         {
             var options = new DistributedCacheEntryOptions
             {
                 AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(2) // Cache expiration time
             };
-            _cache.SetString(cacheKey, JsonSerializer.Serialize(data), options);
+            await _cache.SetStringAsync(cacheKey, JsonSerializer.Serialize(data), options);
         }
     }
 }

@@ -18,7 +18,6 @@ namespace DataAccessLayer.Migrations
                 columns: new[] { "Id", "Name" },
                 values: new object[,]
                 {
-                    { -1, "No Department" },
                     { 1, "d1" },
                     { 2, "d2" }
                 });
@@ -37,11 +36,6 @@ namespace DataAccessLayer.Migrations
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DeleteData(
-                table: "Departments",
-                keyColumn: "Id",
-                keyValue: -1);
-
             migrationBuilder.DeleteData(
                 table: "Employees",
                 keyColumn: "Id",

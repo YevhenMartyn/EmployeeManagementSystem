@@ -4,11 +4,12 @@ namespace BusinessLogicLayer.Interface
 {
     public interface IEmployeeService
     {
-        IList<EmployeeModel> GetAll();
-        EmployeeModel GetById(int id);
-        void Create(EmployeeModel employee);
-        void Update(EmployeeModel employee);
-        void Delete(int id);
-
+        Task<IList<EmployeeModel>> GetAllAsync();
+        Task<IList<EmployeeModel>> GetAllAsync(int? departmentId, DateTime? fromDate, DateTime? toDate);
+        Task<IList<EmployeeModel>> GetAllAsync(string? name, string? position, int? departmentId, DateTime? startDate);
+        Task<EmployeeModel> GetByIdAsync(int id);
+        Task CreateAsync(EmployeeModel employee);
+        Task UpdateAsync(int id, EmployeeModel employee);
+        Task DeleteAsync(int id);
     }
 }

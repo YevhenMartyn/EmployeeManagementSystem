@@ -19,73 +19,79 @@ namespace DataAccessLayer.Repositories
             _cache = cache;
         }
 
-        public void Create(DepartmentEntity entity)
+        public async Task<IList<DepartmentEntity>> GetAllAsync()
         {
-            _dbContext.Departments.Add(entity);
-            SaveChanges();
-            InvalidateCache(entity.Id);
+            string cacheKey = $"{cacheKeyPrefix}All";
+            IList<DepartmentEntity> departments = await GetCacheAsync<List<DepartmentEntity>>(cacheKey);
+
+            if (departments == null)
+            {
+                IQueryable<DepartmentEntity> query = _dbContext.Departments.AsNoTracking();
+                departments = await query.ToListAsync();
+                await SetCacheAsync(cacheKey, departments);
+            }
+
+            return departments;
         }
 
-        public void Delete(int id)
-        {
-            _dbContext.Departments.Remove(GetById(id));
-            SaveChanges();
-            InvalidateCache(id);
-        }
-
-        public DepartmentEntity GetById(int id)
+        public async Task<DepartmentEntity> GetByIdAsync(int id)
         {
             string cacheKey = $"{cacheKeyPrefix}{id}";
-            DepartmentEntity department = GetCache<DepartmentEntity>(cacheKey);
+            DepartmentEntity department = await GetCacheAsync<DepartmentEntity>(cacheKey);
 
             if (department == null)
             {
-                department = _dbContext.Departments.AsNoTracking().FirstOrDefault(d => d.Id == id);
+                department = await _dbContext.Departments.AsNoTracking().FirstOrDefaultAsync(d => d.Id == id);
                 if (department != null)
                 {
-                    SetCache(cacheKey, department);
+                    await SetCacheAsync(cacheKey, department);
                 }
             }
 
             return department;
         }
 
-        public IList<DepartmentEntity> GetAll()
+        public async Task CreateAsync(DepartmentEntity entity)
         {
-            string cacheKey = $"{cacheKeyPrefix}All";
-            IList<DepartmentEntity> departments = GetCache<List<DepartmentEntity>>(cacheKey);
-
-            if (departments == null)
-            {
-                IQueryable<DepartmentEntity> query = _dbContext.Departments.AsNoTracking();
-                departments = query.ToList();
-                SetCache(cacheKey, departments);
-            }
-
-            return departments;
+            await _dbContext.Departments.AddAsync(entity);
+            await SaveChangesAsync();
+            await InvalidateCacheAsync(entity.Id);
         }
 
-        public void Update(DepartmentEntity entity)
+        public async Task UpdateAsync(DepartmentEntity entity)
         {
+            _dbContext.Departments.Attach(entity);
+            _dbContext.Entry(entity).State = EntityState.Modified;
             _dbContext.Departments.Update(entity);
-            SaveChanges();
-            InvalidateCache(entity.Id);
+            await SaveChangesAsync();
+            await InvalidateCacheAsync(entity.Id);
         }
 
-        private void SaveChanges()
+        public async Task DeleteAsync(int id)
         {
-            _dbContext.SaveChanges();
+            var entity = await GetByIdAsync(id);
+            if (entity != null)
+            {
+                _dbContext.Departments.Remove(entity);
+                await SaveChangesAsync();
+                await InvalidateCacheAsync(id);
+            }
         }
 
-        private void InvalidateCache(int id)
+        private async Task SaveChangesAsync()
         {
-            _cache.Remove($"{cacheKeyPrefix}{id}");
-            _cache.Remove($"{cacheKeyPrefix}All");
+            await _dbContext.SaveChangesAsync();
         }
 
-        private T GetCache<T>(string cacheKey)
+        private async Task InvalidateCacheAsync(int id)
         {
-            var cachedData = _cache.GetString(cacheKey);
+            await _cache.RemoveAsync($"{cacheKeyPrefix}{id}");
+            await _cache.RemoveAsync($"{cacheKeyPrefix}All");
+        }
+
+        private async Task<T> GetCacheAsync<T>(string cacheKey)
+        {
+            var cachedData = await _cache.GetStringAsync(cacheKey);
             if (string.IsNullOrEmpty(cachedData))
             {
                 return default;
@@ -94,13 +100,13 @@ namespace DataAccessLayer.Repositories
             return JsonSerializer.Deserialize<T>(cachedData);
         }
 
-        private void SetCache<T>(string cacheKey, T data)
+        private async Task SetCacheAsync<T>(string cacheKey, T data)
         {
             var options = new DistributedCacheEntryOptions
             {
                 AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(2) // Cache expiration time
             };
-            _cache.SetString(cacheKey, JsonSerializer.Serialize(data), options);
+            await _cache.SetStringAsync(cacheKey, JsonSerializer.Serialize(data), options);
         }
     }
 }

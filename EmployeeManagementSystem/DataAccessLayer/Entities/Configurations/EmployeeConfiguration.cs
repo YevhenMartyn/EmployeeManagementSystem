@@ -52,7 +52,7 @@ namespace DataAccessLayer.Entities.Configurations
                     DepartmentId = 1,
                     StartDate = new DateTime(2023, 9, 18),
                 }
-                );
+            );
         }
     }
 }

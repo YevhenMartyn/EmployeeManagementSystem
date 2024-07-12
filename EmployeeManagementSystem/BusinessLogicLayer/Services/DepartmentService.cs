@@ -1,10 +1,13 @@
 ﻿using AutoMapper;
+using BusinessLogicLayer.Exceptions;
 using BusinessLogicLayer.Interface;
 using BusinessLogicLayer.Models;
 using BusinessLogicLayer.Validators;
 using DataAccessLayer.Interface;
 using FluentValidation;
 using FluentValidation.Results;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 
 namespace BusinessLogicLayer.Services
 {
@@ -12,56 +15,82 @@ namespace BusinessLogicLayer.Services
     {
         private readonly IDepartmentRepository _repository;
         private readonly IMapper _mapper;
-        private readonly IEmployeeRepository _employeeRepository;
         private readonly IValidator<DepartmentModel> _departmentValidator;
-        public DepartmentService(
-            IDepartmentRepository repository,
-            IMapper mapper,
-            IEmployeeRepository employeeRepository,
-            IValidator<DepartmentModel> departmentValidator)
+        private readonly ILogger<DepartmentService> _logger;
+        public DepartmentService(IDepartmentRepository repository,
+                                 IMapper mapper,
+                                 IValidator<DepartmentModel> departmentValidator,
+                                 ILogger<DepartmentService> logger)
         {
+            _logger = logger;
             _repository = repository;
             _mapper = mapper;
-            _employeeRepository = employeeRepository;
             _departmentValidator = departmentValidator;
         }
-        public void Create(DepartmentModel department)
-        {
-            _repository.Create(_mapper.Map<DataAccessLayer.Entities.DepartmentEntity>(department));
-        }
 
-        public void Delete(int id)
+        public async Task<IList<DepartmentModel>> GetAllAsync()
         {
-            var employees = _employeeRepository.GetAll(e => e.DepartmentId == id);
-            foreach (var employee in employees)
-            {
-                employee.DepartmentId = -1;
-                _employeeRepository.Update(employee);
-            }
-            _repository.Delete(id);
-        }
-
-        public IList<DepartmentModel> GetAll()
-        {
-            IList<DepartmentModel> departments = _mapper.Map<IList<DepartmentModel>>(_repository.GetAll());
+            _logger.LogInformation("Fetching all departments");
+            IList<DepartmentModel> departments = _mapper.Map<IList<DepartmentModel>>(await _repository.GetAllAsync());
             return departments;
-
         }
 
-        public DepartmentModel GetById(int id)
+        public async Task<DepartmentModel> GetByIdAsync(int id)
         {
-            DepartmentModel department = _mapper.Map<DepartmentModel>(_repository.GetById(id));    
+            _logger.LogInformation($"Fetching department with ID {id}");
+            DepartmentModel department = _mapper.Map<DepartmentModel>(await _repository.GetByIdAsync(id));
+
+            if (department == null)
+            {
+                CustomException ex = new CustomException($"Department with ID {id} not found", StatusCodes.Status404NotFound);
+                _logger.LogWarning(ex.Message);
+                throw ex;
+            }
+
             return department;
         }
 
-        public void Update(DepartmentModel department)
+        public async Task CreateAsync(DepartmentModel department)
         {
-            _repository.Update(_mapper.Map<DataAccessLayer.Entities.DepartmentEntity>(department));
+            var validationResult = Validate(department);
+            if (!validationResult.IsValid)
+            {
+                CustomException ex = new CustomException($"Invalid model: {validationResult.ToString()}", StatusCodes.Status400BadRequest);
+                _logger.LogError(ex.Message);
+                throw ex;
+            }
+            _logger.LogInformation($"Department with ID {department.Id} added successfully");
+            await _repository.CreateAsync(_mapper.Map<DataAccessLayer.Entities.DepartmentEntity>(department));
+        }
+
+        public async Task UpdateAsync(int id, DepartmentModel department)
+        {
+            department.Id = id;
+            var validationResult = Validate(department);
+            if (!validationResult.IsValid)
+            {
+                CustomException ex = new CustomException($"Invalid model: {validationResult.ToString()}", StatusCodes.Status400BadRequest);
+                _logger.LogError(ex.Message);
+                throw ex;
+            }
+
+            var existingDepartment = await GetByIdAsync(id);
+            _logger.LogInformation($"Department with ID {id} updated successfully");
+            await _repository.UpdateAsync(_mapper.Map<DataAccessLayer.Entities.DepartmentEntity>(department));
+        }
+
+        public async Task DeleteAsync(int id)
+        {
+            var existingDepartment = await GetByIdAsync(id);
+            _logger.LogInformation($"Department with ID {id} deleted successfully");
+            await _repository.DeleteAsync(id);
         }
 
         private ValidationResult Validate(DepartmentModel department)
         {
-            return _departmentValidator.Validate(department);
+            var validator = new DepartmentValidator();
+            var validationResult = validator.Validate(department);
+            return validationResult;
         }
     }
 }
