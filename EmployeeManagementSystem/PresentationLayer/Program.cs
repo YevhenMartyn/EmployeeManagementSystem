@@ -62,7 +62,7 @@ builder.Services.AddControllers()
 
 
 //builder.Services.AddFluentValidationAutoValidation();
-//builder.Services.AddFluentValidationClientsideAdapters();
+//builder.Services.AddFluentValidationClientsideAdapters();                 for some reason it doesn't work
 //builder.Services.AddValidatorsFromAssemblyContaining<EmployeeValidator>();
 //builder.Services.AddValidatorsFromAssemblyContaining<DepartmentValidator>();
 

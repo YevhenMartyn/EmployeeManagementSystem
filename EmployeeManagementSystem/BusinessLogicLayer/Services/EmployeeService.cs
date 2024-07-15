@@ -36,20 +36,7 @@ namespace BusinessLogicLayer.Services
             _cacheService = cacheService;
         }
 
-        public async Task<IList<EmployeeModel>> GetAllAsync()
-        {
-            string cacheKey = $"{_cacheService.GetCacheKeyPrefix()}All";
-            IList<EmployeeEntity> employeesEntity = await _cacheService.GetCacheAsync<IList<EmployeeEntity>>(cacheKey);
-            if (employeesEntity == null)
-            {
-                employeesEntity = await _repository.GetAllAsync();
-                await _cacheService.SetCacheAsync(cacheKey, employeesEntity);
-            }
-            IList<EmployeeModel> employees = _mapper.Map<IList<EmployeeModel>>(employeesEntity);
-            return employees;
-        }
-
-        public async Task<IList<EmployeeModel>> GetAllAsync(int? departmentId, DateTime? fromDate, DateTime? toDate)
+        public async Task<IList<EmployeeModel>> GetAllAsync(EmployeeFilterModel? filter)
         {
             string cacheKey = $"{_cacheService.GetCacheKeyPrefix()}All";
             IEnumerable<EmployeeEntity> employeesEntity = await _cacheService.GetCacheAsync<IEnumerable<EmployeeEntity>>(cacheKey);
@@ -61,64 +48,45 @@ namespace BusinessLogicLayer.Services
 
             IEnumerable<EmployeeModel> employees = _mapper.Map<IEnumerable<EmployeeModel>>(employeesEntity);
 
-            if (departmentId != null)
+            if (!string.IsNullOrEmpty(filter.Name))
             {
-                employees = employees.Where(n => n.DepartmentId == departmentId);
+                employees = employees.Where(e => e.Name.Contains(filter.Name, StringComparison.OrdinalIgnoreCase));
             }
 
-            if (fromDate.HasValue)
+            if (!string.IsNullOrEmpty(filter.Position))
             {
-                employees = employees.Where(e => e.StartDate >= fromDate.Value);
+                employees = employees.Where(e => e.Position.Contains(filter.Position, StringComparison.OrdinalIgnoreCase));
             }
 
-            if (toDate.HasValue)
+            if (filter.DepartmentId != null)
             {
-                employees = employees.Where(e => e.StartDate <= toDate.Value);
+                employees = employees.Where(n => n.DepartmentId == filter.DepartmentId);
             }
 
-            return employees.ToList();
-        }
-
-        public async Task<IList<EmployeeModel>> GetAllAsync(string? name, string? position, int? departmentId, DateTime? startDate)
-        {
-            string cacheKey = $"{_cacheService.GetCacheKeyPrefix()}All";
-            IList<EmployeeEntity> employeesEntity = await _cacheService.GetCacheAsync<IList<EmployeeEntity>>(cacheKey);
-            if (employeesEntity == null)
+            if (filter.FromDate.HasValue)
             {
-                employeesEntity = await _repository.GetAllAsync();
-                await _cacheService.SetCacheAsync(cacheKey, employeesEntity);
+                employees = employees.Where(e => e.StartDate >= filter.FromDate.Value);
             }
 
-            IList<EmployeeModel> employees = _mapper.Map<IList<EmployeeModel>>(employeesEntity);
-
-            if (!string.IsNullOrEmpty(name))
+            if (filter.ToDate.HasValue)
             {
-                employees = employees.Where(e => e.Name.Contains(name, StringComparison.OrdinalIgnoreCase)).ToList();
+                employees = employees.Where(e => e.StartDate <= filter.ToDate.Value);
             }
 
-            if (!string.IsNullOrEmpty(position))
+            if (!(filter.StartDate == null || filter.StartDate == new DateTime(1, 1, 1))) //default date
             {
-                employees = employees.Where(e => e.Position.Contains(position, StringComparison.OrdinalIgnoreCase)).ToList();
+                employees = employees.Where(e => e.StartDate.Date == filter.StartDate);
             }
 
-            if (departmentId > 0)
-            {
-                employees = employees.Where(e => e.DepartmentId == departmentId).ToList();
-            }
-
-            if (startDate != new DateTime(1, 1, 1)) //default date
-            {
-                employees = employees.Where(e => e.StartDate.Date == startDate).ToList();
-            }
-
-            if (employees.Count == 0)
+            if (employees.Count() == 0)
             {
                 CustomException ex = new CustomException("No employee found", 404);
                 _logger.LogWarning(ex.Message);
                 throw ex;
             }
 
-            return employees;
+            return employees.ToList();
+
         }
 
         public async Task<EmployeeModel> GetByIdAsync(int id)

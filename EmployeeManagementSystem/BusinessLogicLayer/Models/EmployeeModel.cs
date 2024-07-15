@@ -1,7 +1,4 @@
-﻿
-using System.ComponentModel.DataAnnotations;
-
-namespace BusinessLogicLayer.Models
+﻿namespace BusinessLogicLayer.Models
 {
     public class EmployeeModel
     {
