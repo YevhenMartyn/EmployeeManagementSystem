@@ -12,15 +12,12 @@ namespace PresentationLayer.Controllers
     [ApiController]
     public class EmployeeController : ControllerBase
     {
-        private readonly ILogger<EmployeeController> _logger;
         private readonly IEmployeeService _employeeService;
         private readonly IMapper _mapper;
 
-        public EmployeeController(ILogger<EmployeeController> logger,
-                                  IEmployeeService employeeService,
+        public EmployeeController(IEmployeeService employeeService,
                                   IMapper mapper)
         {
-            _logger = logger;
             _employeeService = employeeService;
             _mapper = mapper;
         }
@@ -32,7 +29,7 @@ namespace PresentationLayer.Controllers
                                                          [FromQuery(Name = "startedAfterDate")] DateTime? fromDate,
                                                          [FromQuery(Name = "startedBeforeDate")] DateTime? toDate)
         {
-            IEnumerable<EmployeeDTO> employees = _mapper.Map<IList<EmployeeDTO>>(await _employeeService.GetAllAsync(departmentId, fromDate, toDate));
+            IEnumerable<EmployeeDTO> employees = _mapper.Map<IList<EmployeeDTO>>(await _employeeService.GetAllAsync(new EmployeeFilterModel() { DepartmentId=departmentId, FromDate=fromDate, ToDate=toDate }));
             return Ok(employees);
         }
 
@@ -61,7 +58,7 @@ namespace PresentationLayer.Controllers
         {
             try
             {
-                var employees = _mapper.Map<IList<EmployeeDTO>>(await _employeeService.GetAllAsync(searchParams.Name, searchParams.Position, searchParams.DepartmentId, searchParams.StartDate));
+                var employees = _mapper.Map<IList<EmployeeDTO>>(await _employeeService.GetAllAsync(new EmployeeFilterModel() { Name = searchParams.Name, Position = searchParams.Position, DepartmentId = searchParams.DepartmentId, StartDate = searchParams.StartDate }));
                 return Ok(employees);
             }
             catch (CustomException ex)

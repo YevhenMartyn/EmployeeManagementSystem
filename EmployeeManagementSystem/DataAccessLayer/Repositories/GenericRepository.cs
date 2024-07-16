@@ -8,7 +8,7 @@ using System.Text.Json;
 
 namespace DataAccessLayer.Repositories
 {
-    public class GenericRepository<T> : IGenericRepository<T> where T : class
+    public class GenericRepository<T> : IGenericRepository<T> where T : BaseEntity
     {
         private readonly ApplicationDbContext _dbContext;
 
@@ -31,8 +31,7 @@ namespace DataAccessLayer.Repositories
 
         public async Task<T> GetByIdAsync(int id)
         {
-            IQueryable<T> query = _dbContext.Set<T>().AsNoTracking();
-            return await query.FirstOrDefaultAsync(e => EF.Property<int>(e, "Id") == id);
+            return await _dbContext.Set<T>().AsNoTracking().FirstOrDefaultAsync(e => e.Id == id);
         }
 
         public async Task CreateAsync(T entity)

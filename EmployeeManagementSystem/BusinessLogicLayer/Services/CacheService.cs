@@ -1,5 +1,4 @@
-﻿
-using BusinessLogicLayer.Interface;
+﻿using BusinessLogicLayer.Interface;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Logging;
 using System.Text;
@@ -10,12 +9,10 @@ namespace BusinessLogicLayer.Services
     public class CacheService<T> : ICacheService<T> where T : class
     {
         private readonly IDistributedCache _cache;
-        private readonly ILogger<CacheService<T>> _logger;
         private readonly string _cacheKeyPrefix;
-        public CacheService(IDistributedCache cache, ILogger<CacheService<T>> logger)
+        public CacheService(IDistributedCache cache)
         {
             _cache = cache;
-            _logger = logger;
             _cacheKeyPrefix = $"{typeof(T).Name}_";
         }
 
@@ -34,7 +31,7 @@ namespace BusinessLogicLayer.Services
         {
             var options = new DistributedCacheEntryOptions
             {
-                AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(2) // Cache expiration time
+                AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5) // Cache expiration time
             };
             await _cache.SetStringAsync(cacheKey, JsonSerializer.Serialize(data), options);
         }
