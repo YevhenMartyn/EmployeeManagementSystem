@@ -38,7 +38,7 @@ namespace BusinessLogicLayer.Services
 
         public async Task<IList<EmployeeModel>> GetAllAsync(EmployeeFilterModel? filter)
         {
-            string cacheKey = $"{_cacheService.GetCacheKeyPrefix()}All";
+            string cacheKey = _cacheService.GetCacheKey("All");
             IEnumerable<EmployeeEntity> employeesEntity = await _cacheService.GetCacheAsync<IEnumerable<EmployeeEntity>>(cacheKey);
             if (employeesEntity == null)
             {
@@ -91,7 +91,7 @@ namespace BusinessLogicLayer.Services
 
         public async Task<EmployeeModel> GetByIdAsync(int id)
         {
-            string cacheKey = $"{_cacheService.GetCacheKeyPrefix()}{id}";
+            string cacheKey = _cacheService.GetCacheKey($"{id}");
 
             EmployeeEntity employeeEntity = await _cacheService.GetCacheAsync<EmployeeEntity>(cacheKey);
             if (employeeEntity == null)
