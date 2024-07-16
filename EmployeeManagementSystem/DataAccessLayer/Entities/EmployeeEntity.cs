@@ -3,9 +3,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DataAccessLayer.Entities
 {
-    public class EmployeeEntity
+    public class EmployeeEntity : BaseEntity
     {
-        public int Id { get; set; }
         public string Name { get; set; }
         public string Position { get; set; }
         public int? DepartmentId { get; set; }
